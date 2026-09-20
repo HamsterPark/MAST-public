@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "mast": {
+      "command": "${user_config.python}",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/server/run_server.py"],
+      "env": {
+        "MAST_URL": "${user_config.mast_url}",
+        "MAST_USER": "${user_config.mast_user}",
+        "MAST_PASSWORD": "${user_config.mast_password}",
+        "MAST_VERIFY_TLS": "${user_config.verify_tls}",
+        "MAST_ALLOW_REMOTE": "${user_config.allow_remote}",
+        "MAST_ACTOR": "${user_config.actor}"
+      }
+    }
+  }
+}

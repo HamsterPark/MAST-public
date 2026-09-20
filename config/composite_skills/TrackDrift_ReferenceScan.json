@@ -1,0 +1,151 @@
+{
+  "name": "TrackDrift_ReferenceScan",
+  "description": "按参考图跟踪样品漂移并补偿扫描框；首次（无参考路径）则把本次当参考。",
+  "version": 1,
+  "safety_level": "confirm",
+  "params": [
+    {
+      "name": "ref_x_m",
+      "type": "number",
+      "default": 0.0,
+      "description": "参考点 X (m)",
+      "required": true
+    },
+    {
+      "name": "ref_y_m",
+      "type": "number",
+      "default": 0.0,
+      "description": "参考点 Y (m)",
+      "required": true
+    },
+    {
+      "name": "ref_width_m",
+      "type": "number",
+      "default": 2e-08,
+      "description": "参考扫描宽 (m)",
+      "required": false
+    },
+    {
+      "name": "bias_v",
+      "type": "number",
+      "default": -0.5,
+      "description": "偏压 (V)",
+      "required": false
+    },
+    {
+      "name": "ref_image_path",
+      "type": "string",
+      "default": "",
+      "description": "参考图 .npy 路径（空=存为参考）",
+      "required": false
+    }
+  ],
+  "nodes": [
+    {
+      "type": "step",
+      "id": "set_bias",
+      "skill": "SetBias",
+      "optional": true,
+      "params": {
+        "bias_v": {
+          "$expr": "bias_v"
+        }
+      }
+    },
+    {
+      "type": "step",
+      "id": "ref_scan",
+      "skill": "FullScan",
+      "params": {
+        "center_x_m": {
+          "$expr": "ref_x_m"
+        },
+        "center_y_m": {
+          "$expr": "ref_y_m"
+        },
+        "width_m": {
+          "$expr": "ref_width_m"
+        },
+        "height_m": {
+          "$expr": "ref_width_m"
+        },
+        "line_time_s": 0.1
+      }
+    },
+    {
+      "type": "if",
+      "id": "first",
+      "cond": "ref_image_path == ''",
+      "then": [
+        {
+          "type": "succeed",
+          "reason": "'reference stored (no prior reference)'"
+        }
+      ],
+      "else": []
+    },
+    {
+      "type": "step",
+      "id": "drift",
+      "skill": "ComputeDriftVector",
+      "params": {
+        "ref_path": {
+          "$expr": "ref_image_path"
+        },
+        "scan_width_m": {
+          "$expr": "ref_width_m"
+        }
+      }
+    },
+    {
+      "type": "if",
+      "id": "shifted",
+      "cond": "abs(drift['drift_x_m']) > 1e-12 or abs(drift['drift_y_m']) > 1e-12",
+      "then": [
+        {
+          "type": "step",
+          "id": "compensate",
+          "skill": "ConfigureScan",
+          "optional": true,
+          "params": {
+            "center_x_m": {
+              "$expr": "ref_x_m + drift['drift_x_m']"
+            },
+            "center_y_m": {
+              "$expr": "ref_y_m + drift['drift_y_m']"
+            },
+            "width_m": {
+              "$expr": "ref_width_m"
+            },
+            "height_m": {
+              "$expr": "ref_width_m"
+            }
+          }
+        }
+      ],
+      "else": []
+    }
+  ],
+  "outputs": [
+    {
+      "name": "drift_x_m",
+      "expr": "drift['drift_x_m']"
+    },
+    {
+      "name": "drift_y_m",
+      "expr": "drift['drift_y_m']"
+    }
+  ],
+  "success_when": "",
+  "fail_message": "",
+  "estimated_duration_s": 0.0,
+  "tags": [
+    "scan",
+    "drift",
+    "builtin"
+  ],
+  "author": "",
+  "notes": "Declarative twin of drift_track.py:TrackDrift_ReferenceScan (P5).",
+  "_saved_at": "",
+  "_content_sha256": "e7eec21443d6c03807579d9ac31fa6cbcbb07c1d811373d25954882d4cd660c5"
+}

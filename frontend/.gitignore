@@ -1,0 +1,10 @@
+node_modules/
+dist/
+*.local
+.vite/
+*.tsbuildinfo
+
+# NOTE: src/api/schema.d.ts is COMMITTED on purpose — it is the generated typed
+# contract and the `gen:api:check` CI gate diffs against it to catch drift (F4).
+# openapi.json is also committed as the typegen input.
+frontend/test-results/

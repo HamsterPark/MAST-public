@@ -1,0 +1,84 @@
+{
+  "name": "ScanThenConditionTip",
+  "description": "扫描成像并评估质量;若质量低于阈值则脉冲修复针尖,否则记录通过。",
+  "version": 1,
+  "safety_level": "confirm",
+  "params": [
+    {
+      "name": "quality_threshold",
+      "type": "number",
+      "default": 6.0,
+      "description": "图像质量阈值",
+      "required": false
+    },
+    {
+      "name": "pulse_v",
+      "type": "number",
+      "default": 3.0,
+      "description": "修针脉冲电压 (V)",
+      "required": true
+    }
+  ],
+  "nodes": [
+    {
+      "type": "step",
+      "id": "scan",
+      "skill": "FullScan",
+      "params": {}
+    },
+    {
+      "type": "step",
+      "id": "assess",
+      "skill": "AssessImageQuality",
+      "params": {}
+    },
+    {
+      "type": "if",
+      "id": "needs_fix",
+      "cond": "assess['quality'] < quality_threshold",
+      "then": [
+        {
+          "type": "step",
+          "id": "pulse",
+          "skill": "BiasPulse",
+          "params": {
+            "bias_v": {
+              "$expr": "pulse_v"
+            },
+            "width_s": 0.1
+          }
+        },
+        {
+          "type": "step",
+          "id": "note_fix",
+          "skill": "LogNote",
+          "params": {
+            "note": "tip pulsed due to low image quality"
+          }
+        }
+      ],
+      "else": [
+        {
+          "type": "step",
+          "id": "note_ok",
+          "skill": "LogNote",
+          "params": {
+            "note": "image quality acceptable"
+          }
+        }
+      ]
+    }
+  ],
+  "outputs": [],
+  "estimated_duration_s": 0.0,
+  "tags": [
+    "scan",
+    "tip",
+    "conditioning",
+    "template"
+  ],
+  "author": "",
+  "notes": "Template: clone and remap FullScan/AssessImageQuality/BiasPulse to your skills.",
+  "_saved_at": "",
+  "_content_sha256": "9e1373289ce26813852695adbaf725c6ab590485451ef5a8ce39e4388e264984"
+}

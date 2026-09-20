@@ -1,0 +1,142 @@
+# MAST v2 pinned dependencies (Phase 0)
+# See docs/v2/architecture/v2.md §技术栈 for rationale.
+# Install: .venv-v2-py313/Scripts/pip.exe install -r MASTv2/requirements-v2.txt
+# pip.ini configured with Tsinghua mirror (VPN-bypassed via route <mirror-route>).
+
+# --- LangGraph 1.x core ---
+# langgraph 1.1.0+ requires langgraph-checkpoint>=3, but extensions had stale
+# upper bounds in compass. Loosened to let pip resolve. The extension syncs its
+# major version with langgraph-checkpoint.
+#
+# 2026-08-26: langgraph-checkpoint-postgres REMOVED. It was carried since Phase 0
+# because the blueprint called for PostgresSaver, but that saver was never wired
+# — the实现 is SqliteSaver (runtime.py), and `PostgresSaver` survives only as an
+# example type in six agents' docstrings. An installed-but-unused dependency is
+# not free: it is one more package whose version can drift, whose CVEs must be
+# read, and which PyInstaller has to be told about.
+langgraph==1.1.*
+langgraph-checkpoint-sqlite
+
+# --- LangChain 1.2+ / langchain-core 1.3+ (for create_agent + middleware) ---
+# compass had langchain-core pinned one minor older; bumped because langgraph
+# 1.1.x requires the newer minor. dep_pin hook pattern updated to match.
+langchain==1.2.*
+langchain-core==1.3.*
+langchain-anthropic==1.4.*
+# 2026-08-26: langchain-openai ADDED. It had never been declared here, yet FOUR
+# of the six advertised providers (Kimi / DeepSeek / Qwen / GLM) route through
+# `ChatOpenAI` and fail at import without it — `agents/_shared/models.py` catches
+# the ImportError and raises a RuntimeError telling the operator to pip-install
+# it by hand. The only place it appeared was `mast2.spec`'s hiddenimports, i.e.
+# the frozen build carried it while a fresh venv from this file did not. Pinned
+# to the same minor as langchain itself, like the rest of the family.
+langchain-openai==1.2.*
+
+# --- Anthropic SDK (fallback for direct API calls, e.g., in prompts) ---
+anthropic>=0.40
+
+# --- Vision (Phase 1: wraps v1 legacy models; Phase 9: M12 DINOv3 inference) ---
+# NOTE: compass called for torch 2.5.*, but Py3.13 only has wheels starting
+# from torch 2.6. Bumped to 2.6+ (dep_pin hook updated to match).
+# Phase 9 (M12): the DINOv3-ViT-L/16 backbone is loaded via *timm* (the LoRA
+# keys were trained against the timm variant — see mast/vision/_vigil). timm
+# 1.0.25+ ships the vit_*_patch16_dinov3.lvd1689m weights. peft loads the LoRA
+# (r=8). transformers is NOT required for the M12 path (we short-circuit
+# dinov3→timm) but is kept for the optional dinov2/HF backbones + other deps.
+# Default index gives the CPU build (torch==2.11.0+cpu). For GPU inference on
+# the lab GTX 1650s (+ the 4060), swap to the matching CUDA build — same
+# version, +cu126 local tag — via tools/cuda_torch/ (download on a fast network,
+# install offline). cu126 = lowest driver bar for torch 2.11 on Turing (≥560.x).
+# The M12 path engages fp16 autocast + mem-efficient SDPA only on CUDA.
+torch>=2.6,<3
+torchvision>=0.21,<0.30
+timm>=1.0.25,<2
+transformers>=4.56,<5
+peft>=0.12
+accelerate>=1.0
+
+# --- Buffer layer (Phase 2) ---
+aiosqlite>=0.19
+
+# --- Contracts / validation ---
+pydantic==2.*
+
+# --- Behavior pinning (Phase 0) ---
+vcrpy>=6.0
+syrupy>=4.0
+pytest>=8.0
+pytest-asyncio>=0.23
+pytest-vcr>=1.0
+
+# --- Literature agent (Phase 6) ---
+# Full-text fetch + OA resolver (mast/knowledge/fetch.py) — the ONLY network dep
+# of the fetch path. Pin explicitly so it can't silently vanish if anthropic /
+# gradio change their transitive dep tree (the feature degrades to "unavailable"
+# with no signal otherwise).
+httpx>=0.27
+
+# --- Data processing (Phase 5) ---
+numpy>=1.24
+scipy>=1.10
+scikit-image>=0.21
+scikit-learn>=1.3
+pandas>=2.0
+# pandas 3.x string columns + all parquet IO (literature index, records export)
+# go through pyarrow; mast/__init__.py eager-imports it (Windows DLL load-order
+# fix), so it is a first-class dep — pin it so it can't silently vanish.
+pyarrow>=15
+matplotlib>=3.7
+RestrictedPython>=7.0
+
+# --- Web service (TS-rewrite) — FastAPI serves the typed API + the built TS SPA.
+# Gradio was REMOVED in the TS rewrite (the entire gui/app.py + panels were
+# deleted; the UI is now the React/TS SPA under frontend/, served by mast.api).
+# fastapi/uvicorn/starlette were already present transitively; pin them now that
+# they are first-class. The frontend is built separately (npm; see frontend/).
+# ≥0.136.1：strict_content_type 默认开 —— 没有 Content-Type 的请求体不再被当 JSON 解析。
+# 更早的版本会解析，一个网页不经 CORS 预检就能向回环服务发「JSON」POST（2026-09-19 安全审计）。
+fastapi>=0.136.1
+uvicorn>=0.30
+python-multipart>=0.0.9
+# LAN HTTPS: auto-generate a self-signed cert when binding 0.0.0.0 without one
+# (mast2_launcher._ensure_lan_cert) so basic-auth creds never travel cleartext.
+cryptography>=43
+
+# --- Observability (optional but recommended) ---
+langsmith>=0.7
+
+# --- Development ---
+ruff>=0.4
+pyright>=1.1
+
+# --- Nanonis hardware (same as v1, hardware layer unchanged) ---
+nanonis-spm>=1.0.9
+
+# --- Environment sensors (vacuum gauge / temperature monitor over RS-485 / serial) ---
+# DL-7 vacuum gauge speaks Modbus-RTU; Lakeshore temperature monitors speak SCPI.
+# Both only need raw serial byte I/O + COM-port enumeration — pyserial covers it
+# (Modbus framing + CRC16 and SCPI are implemented in mast/environment/, no
+# pymodbus dependency). Pure-Python, no native build. Absent → sensors degrade
+# to "unavailable" instead of crashing (see mast/environment/serial_transport.py).
+pyserial>=3.5
+
+# --- Word 导出（报告/论文草稿 → .docx，给人用修订/批注改） ---
+# HTML 自包含导出覆盖「发给别人看」，但覆盖不了「让别人改」：导师/合作者要走 Word
+# 的修订与批注，期刊也不收 HTML 投稿。渲染器在 mast/agents/_shared/report_docx.py，
+# **全部挂 Word 内置样式**（Heading 1 / Normal / Caption / Table Grid …），从不硬编码
+# 字号颜色 —— 收件人改一次样式就能重排全文，套期刊模板只是一次样式替换。
+#
+# 选它而不选 pandoc / Word COM 自动化的理由：
+#   pandoc  —— 转换质量最好，但是个 ~150 MB 外部二进制，得装、得随安装包发、还得
+#              在打包版里找得到，会破坏「一个 exe 自包含」。
+#   Word COM —— 保真度最高，但要求目标机装 Office（rig 不一定有），而且会拉起
+#              一个 WINWORD.EXE；一个自治系统里不该有能挂住、又不好超时杀掉的外部
+#              进程（同 Nanonis 端口那类教训）。
+# python-docx 是纯 Python、离线可用、PyInstaller 能打包。
+#
+# 打包注意：它自带 ~440 KB 的模板数据（docx/templates/，其中 default-styles.xml
+# 就是 Heading 1 / Caption 这些**内置样式的定义**），mast2.spec 必须
+# collect_all("docx")，否则打包版 Document() 直接失败 —— 而那是「打包成功、功能
+# 在仪器上不存在」那类静默失效。实测 collect_all 收到 datas=120 / hidden=95，
+# 其中 23 条是模板数据。
+python-docx>=1.2,<2

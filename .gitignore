@@ -1,0 +1,53 @@
+# 虚拟环境与缓存
+.venv*/
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# 凭据 —— 绝不入库
+api key/
+*.env
+!*.env.example
+config/admin_pin.txt
+MASTv2/mast/update/_defaults.py
+installer/push_defaults*.json
+installer/*.pem
+
+# 构建期产物
+MASTv2/mast/_buildinfo.py
+build/
+dist/
+dist_resources/
+*.spec.bak
+MASTv2/pyruntime/
+python-3.13.*-embed-amd64.zip
+pyruntime_selftest_result.txt
+
+# 运行时数据（机器相关）
+experiments/
+artifacts/
+MASTv2/artifacts/
+working-sessions/
+*.sqlite-shm
+*.sqlite-wal
+*.log
+*.lock
+config/vision.json
+config/scan_prep_profiles.json
+config/overrides/
+**/_gallery/
+push_distribution/
+test-results/
+data/drafts/
+data/figures/
+
+# 前端
+frontend/node_modules/
+frontend/dist/
+
+# 编辑器 / 助手的本地状态
+.claude/settings.local.json
+.claude/worktrees/
+.obsidian/

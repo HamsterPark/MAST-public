@@ -1,0 +1,119 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ════════════════════════════════════════════════════════════════════════════
+   MAST "Lab Console" design system.
+   Tokens are exposed under --mast-* so every existing component (text-mast-text,
+   bg-mast-panel, text-mast-accent, …) inherits the new look automatically.
+   :root = LIGHT (default, no `dark` class); html.dark = DARK (store adds the
+   class). Electric-cyan accent · semantic safety colors · per-agent palette ·
+   WCAG-AA-tuned light/dark pairs.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+/* ── LIGHT (default) ── */
+:root {
+  --mast-bg: #f4f6f9;
+  --mast-panel: #ffffff;
+  --mast-panel-2: #eef1f6;
+  --mast-border: #cbd2dd;
+  --mast-border-strong: #aab3c2;
+  --mast-text: #161a21;
+  --mast-muted: #52596b;          /* AA-fixed (was #6b7280, sub-4.5:1 on light) */
+  --mast-faint: #7a8294;
+  --mast-code-bg: #eef2f8;
+
+  /* Light-mode accent is darker than the dark-mode one on purpose. The design
+     value was #0e8ea8, which is 4.6:1 on pure white — but `text-mast-accent` is
+     almost never ON pure white: it sits on `bg-mast-accent-soft` (a 9% tint of
+     itself) in every selected chip, tab and badge, and that composite is 3.5:1.
+     Sub-AA, and this was reported twice against the
+     "fixed" code. Darkening the token fixes all of them at once and leaves no
+     legible-looking wrong choice for the next component to reach for.
+     test/designTokens.test.ts pins the composite contrast. */
+  --mast-accent: #0b6f83;         /* electric cyan, AA-tuned for text-on-tint */
+  --mast-accent-soft: rgba(11, 111, 131, 0.09);
+  --mast-accent-line: #0b6f83;
+  --mast-accent-ink: #ffffff;
+
+  --mast-auto: #047857;   --mast-auto-bg: rgba(4, 120, 87, 0.10);   --mast-auto-border: rgba(4, 120, 87, 0.28);
+  --mast-info: #0369a1;   --mast-info-bg: rgba(3, 105, 161, 0.10);  --mast-info-border: rgba(3, 105, 161, 0.28);
+  --mast-warn: #b45309;   --mast-warn-bg: rgba(180, 83, 9, 0.12);   --mast-warn-border: rgba(180, 83, 9, 0.30);
+  --mast-danger: #b91c1c; --mast-danger-bg: rgba(185, 28, 28, 0.10); --mast-danger-border: rgba(185, 28, 28, 0.30);
+
+  --mast-dream: #7c3aed;
+  --mast-brainstorm: #0891b2;
+
+  --mast-ag-sup: #475569; --mast-ag-rd: #4f46e5;  --mast-ag-lit: #2563eb; --mast-ag-xd: #16a34a;
+  --mast-ag-ic: #0d9488;  --mast-ag-dp: #7c3aed;  --mast-ag-pw: #d97706; --mast-ag-pr: #e11d48;
+
+  --mast-topbar: linear-gradient(180deg, #ffffff, #eef1f6);
+  --mast-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+
+  --mast-r-card: 12px;
+  --mast-r-ctl: 8px;
+  --mast-r-badge: 5px;
+  --mast-row-py: 9px;
+  --mast-card-pad: 18px;
+  --mast-sec-gap: 18px;
+}
+
+/* ── DARK (store toggles `dark` on <html>) ── */
+html.dark {
+  --mast-bg: #0a0e13;
+  --mast-panel: #141a22;
+  --mast-panel-2: #1b222c;
+  --mast-border: #2c3440;
+  --mast-border-strong: #3a4555;
+  --mast-text: #e8ecf3;
+  --mast-muted: #9aa4b4;
+  --mast-faint: #6b7588;
+  --mast-code-bg: #1b2230;
+
+  --mast-accent: #28d0e6;
+  --mast-accent-soft: rgba(40, 208, 230, 0.12);
+  --mast-accent-line: #28d0e6;
+  --mast-accent-ink: #04222a;
+
+  --mast-auto: #34d399;   --mast-auto-bg: rgba(52, 211, 153, 0.14);  --mast-auto-border: rgba(52, 211, 153, 0.38);
+  --mast-info: #38bdf8;   --mast-info-bg: rgba(56, 189, 248, 0.14);  --mast-info-border: rgba(56, 189, 248, 0.38);
+  --mast-warn: #fbbf24;   --mast-warn-bg: rgba(251, 191, 36, 0.16);  --mast-warn-border: rgba(251, 191, 36, 0.40);
+  --mast-danger: #f87171; --mast-danger-bg: rgba(248, 113, 113, 0.16); --mast-danger-border: rgba(248, 113, 113, 0.40);
+
+  --mast-dream: #a78bfa;
+  --mast-brainstorm: #22d3ee;
+
+  --mast-ag-sup: #94a3b8; --mast-ag-rd: #818cf8;  --mast-ag-lit: #60a5fa; --mast-ag-xd: #4ade80;
+  --mast-ag-ic: #2dd4bf;  --mast-ag-dp: #a78bfa;  --mast-ag-pw: #fbbf24; --mast-ag-pr: #fb7185;
+
+  --mast-topbar: linear-gradient(180deg, #171e28, #10151d);
+  --mast-shadow: none;
+}
+
+/* density toggle (future-ready): set data-mast-density="compact" on a container */
+[data-mast-density="compact"] {
+  --mast-row-py: 5px;
+  --mast-card-pad: 12px;
+  --mast-sec-gap: 12px;
+}
+
+body {
+  margin: 0;
+  background: var(--mast-bg);
+  color: var(--mast-text);
+  font-family: -apple-system, "Segoe UI", "Microsoft YaHei", "Noto Sans CJK SC", system-ui, sans-serif;
+}
+
+/* numeric / id / param / TCP text → tabular mono (the brief's lab-instrument rule) */
+.font-mono,
+code,
+kbd {
+  font-family: "JetBrains Mono", "IBM Plex Mono", ui-monospace, "Cascadia Code", "Consolas", monospace;
+}
+
+/* visible focus ring on every interactive element (a11y / AA) */
+*:focus-visible {
+  outline: 2px solid var(--mast-accent-line);
+  outline-offset: 2px;
+  border-radius: 2px;
+}

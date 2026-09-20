@@ -1,0 +1,51 @@
+{
+  "name": "mast-frontend",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "MAST frontend — 100% TypeScript SPA (TS-rewrite). Replaces the Gradio UI; talks to the Python core over the typed FastAPI seam.",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "test:e2e": "playwright test",
+    "gen:api": "openapi-typescript ./openapi.json -o ./src/api/schema.d.ts",
+    "gen:api:check": "openapi-typescript ./openapi.json -o ./src/api/schema.d.ts && git diff --exit-code -- ./src/api/schema.d.ts",
+    "test:unit": "node --test \"test/**/*.test.ts\""
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.62.0",
+    "@tanstack/react-table": "^8.20.5",
+    "@tanstack/react-virtual": "^3.11.2",
+    "@xyflow/react": "^12.3.6",
+    "clsx": "^2.1.1",
+    "dompurify": "^3.2.3",
+    "konva": "^9.3.16",
+    "openapi-fetch": "^0.13.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-konva": "^18.2.10",
+    "react-markdown": "^9.0.1",
+    "react-router-dom": "^6.28.0",
+    "rehype-raw": "^7.0.0",
+    "remark-gfm": "^4.0.0",
+    "uplot": "^1.6.31",
+    "uplot-react": "^1.2.2",
+    "zustand": "^5.0.2"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.0",
+    "@types/dompurify": "^3.0.5",
+    "@types/node": "^22.10.2",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.20",
+    "openapi-typescript": "^7.4.4",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.6.3",
+    "vite": "^6.0.5"
+  }
+}

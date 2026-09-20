@@ -1,0 +1,8 @@
+# 可选：PDF 取全文 / OCR 用的 PyMuPDF。
+#
+# PyMuPDF 采用 AGPL-3.0 / 商业双许可，与本仓的 MIT 主体分开列出：装了它，文献库的
+# 「上传 PDF」「取全文」「OCR」才可用；不装，这些入口会报「PyMuPDF 未安装」并降级，
+# 其余功能不受影响。请按你自己的许可情况决定是否安装。
+#
+#   pip install -r MASTv2/requirements-pdf.txt
+pymupdf>=1.23

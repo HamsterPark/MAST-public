@@ -1,0 +1,42 @@
+# Skill-contribution CI — only what the skill checker, contrib's own tests and the docs guards need.
+# 技能投稿的最小 CI：依赖只装 MASTv2/requirements-ci.txt。全量无硬件测试要十几分钟，不在这里跑。
+name: skill-contributions
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  compliance:
+    # MAST's target platform is Windows (the Nanonis controller software runs there).
+    runs-on: windows-latest
+    timeout-minutes: 30
+    env:
+      PYTHONPATH: MASTv2
+      PYTHONIOENCODING: utf-8
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: MASTv2/requirements-ci.txt
+
+      - name: Install the checker's dependencies
+        run: python -m pip install -r MASTv2/requirements-ci.txt
+
+      - name: skill_check --all-contrib
+        run: python scripts/skill_check.py --all-contrib
+
+      - name: Compliance tests, mutation tests, docs guards
+        run: >-
+          python -m pytest -q
+          tests/v2/unit/skills/test_contrib_compliance.py
+          tests/v2/unit/skills/test_skill_check_mutations.py
+          tests/v2/unit/docs

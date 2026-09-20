@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "name": "ReadJunctionState",
+  "kind": "spec",
+  "version": "1.0.0",
+  "summary": "Read the tunnelling junction's working point in one call: bias, current setpoint, measured current and Z-controller state. Four read-only official steps; changes nothing on the instrument.",
+  "summary_zh": "一次读出隧道结工作点：偏压、电流设定值、实测电流、Z 控制器状态。四个官方只读步骤，不改仪器任何设置。",
+  "safety_level": "auto",
+  "footprint": "hardware-read-only",
+  "authors": [
+    {"name": "MAST maintainers"}
+  ],
+  "license": "MIT",
+  "verification": "unit-tested",
+  "tests": ["test_read_junction_state.py"],
+  "policy": {
+    "original_work": true,
+    "no_machine_specific_defaults": true,
+    "accepts_inbound_license": true
+  }
+}

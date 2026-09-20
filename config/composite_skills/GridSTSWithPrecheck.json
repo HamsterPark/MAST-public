@@ -1,0 +1,115 @@
+{
+  "name": "GridSTSWithPrecheck",
+  "description": "在 nx×ny 网格上逐点移动并做 STS;每点先质量预检,不合格则跳过。",
+  "version": 1,
+  "safety_level": "confirm",
+  "params": [
+    {
+      "name": "nx",
+      "type": "int",
+      "default": 3,
+      "description": "X 方向点数",
+      "required": true
+    },
+    {
+      "name": "ny",
+      "type": "int",
+      "default": 3,
+      "description": "Y 方向点数",
+      "required": true
+    },
+    {
+      "name": "x0",
+      "type": "number",
+      "default": 0.0,
+      "description": "起点 X (m)",
+      "required": false
+    },
+    {
+      "name": "y0",
+      "type": "number",
+      "default": 0.0,
+      "description": "起点 Y (m)",
+      "required": false
+    },
+    {
+      "name": "spacing_m",
+      "type": "number",
+      "default": 1e-09,
+      "description": "点间距 (m)",
+      "required": false
+    },
+    {
+      "name": "min_quality",
+      "type": "number",
+      "default": 5.0,
+      "description": "预检最低质量",
+      "required": false
+    }
+  ],
+  "nodes": [
+    {
+      "type": "loop",
+      "id": "row",
+      "mode": "repeat",
+      "count": "nx",
+      "var": "ix",
+      "body": [
+        {
+          "type": "loop",
+          "id": "col",
+          "mode": "repeat",
+          "count": "ny",
+          "var": "iy",
+          "body": [
+            {
+              "type": "step",
+              "id": "move",
+              "skill": "MoveToXY",
+              "optional": true,
+              "params": {
+                "x_m": {
+                  "$expr": "x0 + ix * spacing_m"
+                },
+                "y_m": {
+                  "$expr": "y0 + iy * spacing_m"
+                },
+                "wait": true
+              }
+            },
+            {
+              "type": "step",
+              "id": "pre",
+              "skill": "AssessTipQuality",
+              "params": {}
+            },
+            {
+              "type": "if",
+              "id": "good_enough",
+              "cond": "pre['quality'] >= min_quality",
+              "then": [
+                {
+                  "type": "step",
+                  "id": "sts",
+                  "skill": "AcquireSTS",
+                  "optional": true,
+                  "params": {}
+                }
+              ],
+              "else": []
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "estimated_duration_s": 0.0,
+  "tags": [
+    "sts",
+    "grid",
+    "template"
+  ],
+  "author": "",
+  "notes": "Template requiring user adaptation: AssessTipQuality is a placeholder for a per-point quality skill. Map it to an available skill before use. The grid uses MoveToXY and AcquireSTS, with optional per-point steps so a failed point does not abort the remaining grid.",
+  "_saved_at": ""
+}

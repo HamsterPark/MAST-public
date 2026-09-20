@@ -1,0 +1,20 @@
+{
+  "name": "ReadJunctionState",
+  "description": "一次读出隧道结的工作点：偏压、电流设定值、实测电流、Z 控制器状态。四步全是只读，不改仪器的任何设置；接手一台正在运行的仪器、或者改参数之前留底时用。",
+  "safety_level": "auto",
+  "params": [],
+  "nodes": [
+    {"type": "step", "id": "bias", "skill": "GetBias", "params": {}},
+    {"type": "step", "id": "setpoint", "skill": "GetSetpoint", "params": {}},
+    {"type": "step", "id": "current", "skill": "GetCurrent", "params": {}},
+    {"type": "step", "id": "zctrl", "skill": "GetZControllerState", "params": {}}
+  ],
+  "outputs": [
+    {"name": "bias_v", "expr": "bias['bias_v']", "description": "偏压（V）"},
+    {"name": "setpoint_a", "expr": "setpoint['setpoint_a']", "description": "电流设定值（A）"},
+    {"name": "current_a", "expr": "current['current_a']", "description": "实测隧道电流（A）"},
+    {"name": "z_controller_on", "expr": "zctrl['controller_on']", "description": "Z 反馈环是否闭合（实时控制器的读数）"}
+  ],
+  "estimated_duration_s": 3.0,
+  "tags": ["read", "junction", "working-point"]
+}

@@ -1,0 +1,19 @@
+# 公开仓 CI（.github/workflows/ci.yml）只装这些：技能合规检查器（scripts/skill_check.py）、
+# contrib 自带的测试、文档守卫。
+#
+# 清单是实测出来的：把 requirements-v2.txt 里其余的包（视觉 / 数据处理 / 服务端 / 各家 LLM
+# provider SDK）一个个挡掉之后，检查器与这几组测试仍然全绿。检查器要一份完整的技能注册表
+# （撞名、官方子步都靠它），而技能包的 import 链会拉进 langchain / langgraph；拒绝名单与名字校验
+# 住在 mast.llm 里，会拉进 anthropic。
+#
+# CI installs only what the skill checker, contrib's own tests and the docs guards need; the list was
+# found by blocking every other package from requirements-v2.txt and re-running them.
+pytest>=8.0
+numpy>=1.24
+pydantic==2.*
+anthropic>=0.40
+langchain==1.2.*
+langchain-core==1.3.*
+langgraph==1.1.*
+# 命令名存在性（V02）读厂商库的源码；不装它，这一项会被标成 SKIPPED（不算通过）
+nanonis-spm>=1.0.9

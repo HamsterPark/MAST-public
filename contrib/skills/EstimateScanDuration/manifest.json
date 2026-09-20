@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "name": "EstimateScanDuration",
+  "kind": "python",
+  "version": "1.0.0",
+  "summary": "Estimate how long one scan frame takes (forward + backward sweep per line) from scan width, line count and tip speed. Pure arithmetic; never talks to the instrument.",
+  "summary_zh": "由扫描宽度、行数与针尖线速度估算一帧扫描耗时（每行正扫 + 回扫）。纯计算，不与仪器通信。",
+  "safety_level": "auto",
+  "footprint": "pure-analysis",
+  "authors": [
+    {"name": "MAST maintainers"}
+  ],
+  "license": "MIT",
+  "verification": "unit-tested",
+  "tests": ["test_estimate_scan_duration.py"],
+  "policy": {
+    "original_work": true,
+    "no_machine_specific_defaults": true,
+    "accepts_inbound_license": true
+  }
+}

@@ -1,0 +1,112 @@
+{
+  "name": "LineProfileSTS",
+  "description": "从起点沿固定方向等间距移动 n 个点,每点做一次 STS 谱采集(线扫谱)。",
+  "version": 2,
+  "safety_level": "confirm",
+  "params": [
+    {
+      "name": "n_points",
+      "type": "int",
+      "default": 5,
+      "description": "采点数",
+      "required": true
+    },
+    {
+      "name": "x0",
+      "type": "number",
+      "default": 0.0,
+      "description": "起点 X (m)",
+      "required": false
+    },
+    {
+      "name": "y0",
+      "type": "number",
+      "default": 0.0,
+      "description": "起点 Y (m)",
+      "required": false
+    },
+    {
+      "name": "dx",
+      "type": "number",
+      "default": 1e-09,
+      "description": "每步 X 增量 (m)",
+      "required": false
+    },
+    {
+      "name": "dy",
+      "type": "number",
+      "default": 0.0,
+      "description": "每步 Y 增量 (m)",
+      "required": false
+    }
+  ],
+  "nodes": [
+    {
+      "type": "set",
+      "id": "init",
+      "var": "succeeded",
+      "value": "0"
+    },
+    {
+      "type": "loop",
+      "id": "line",
+      "mode": "repeat",
+      "count": "n_points",
+      "var": "i",
+      "body": [
+        {
+          "type": "step",
+          "id": "move",
+          "skill": "MoveToXY",
+          "optional": true,
+          "params": {
+            "x_m": {
+              "$expr": "x0 + i * dx"
+            },
+            "y_m": {
+              "$expr": "y0 + i * dy"
+            },
+            "wait": true
+          }
+        },
+        {
+          "type": "step",
+          "id": "sts",
+          "skill": "AcquireSTS",
+          "optional": true,
+          "params": {}
+        },
+        {
+          "type": "if",
+          "id": "ok",
+          "cond": "'_failed' not in sts",
+          "then": [
+            {
+              "type": "set",
+              "id": "inc",
+              "var": "succeeded",
+              "value": "succeeded + 1"
+            }
+          ],
+          "else": []
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "name": "succeeded",
+      "expr": "succeeded"
+    }
+  ],
+  "success_when": "succeeded >= 1",
+  "fail_message": "'no STS point succeeded along the line'",
+  "estimated_duration_s": 0.0,
+  "tags": [
+    "sts",
+    "line"
+  ],
+  "author": "",
+  "notes": "Line-profile acquisition using MoveToXY and AcquireSTS. Per-point steps are optional; the succeeded counter and success_when determine overall success.",
+  "_saved_at": ""
+}

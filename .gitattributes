@@ -1,0 +1,6 @@
+# 只管外部集成新建的几个目录：它们的文件要在私有仓、公开仓、投稿者的检出之间逐字节一致
+# （contrib/ 的回流对账按字节比），所以行尾一律 LF。既有文件不在这里，免得触发整仓重新规范化。
+docs/external/** text eol=lf
+integrations/** text eol=lf
+contrib/** text eol=lf
+.claude-plugin/** text eol=lf

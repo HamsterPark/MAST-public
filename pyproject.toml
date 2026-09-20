@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mast-stm"
+version = "6.5.0"
+description = "Modular Autonomous SPM Toolkit — a multi-agent experiment companion for a Nanonis-controlled STM"
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "Yuanhao Lyu" }]
+requires-python = ">=3.13"
+dynamic = ["dependencies"]
+keywords = ["stm", "spm", "nanonis", "langgraph", "multi-agent", "lab-automation"]
+
+[tool.setuptools.dynamic]
+dependencies = { file = ["MASTv2/requirements-v2.txt"] }
+
+[tool.setuptools.packages.find]
+where = ["MASTv2"]
+include = ["mast*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests/v2"]
+markers = [
+    "hardware: needs a live Nanonis controller",
+    "live_llm: needs a real LLM provider key",
+    "needs_artifacts: needs weights or indexes that are not shipped",
+]

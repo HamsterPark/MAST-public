@@ -1,0 +1,159 @@
+{
+ "_comment": "External-agent API v1 baseline: every (method, path) and every request-body field listed here must keep existing. Append new ones; never remove or rename within v1.",
+ "api_version": "1",
+ "endpoints": [
+  [
+   "GET",
+   "/briefing"
+  ],
+  [
+   "GET",
+   "/data/file"
+  ],
+  [
+   "GET",
+   "/data/files"
+  ],
+  [
+   "GET",
+   "/data/frame"
+  ],
+  [
+   "GET",
+   "/guide"
+  ],
+  [
+   "GET",
+   "/health"
+  ],
+  [
+   "GET",
+   "/jobs"
+  ],
+  [
+   "GET",
+   "/jobs/{job_id}"
+  ],
+  [
+   "GET",
+   "/notes"
+  ],
+  [
+   "GET",
+   "/requests"
+  ],
+  [
+   "GET",
+   "/requests/{request_id}"
+  ],
+  [
+   "GET",
+   "/scope"
+  ],
+  [
+   "GET",
+   "/skills/search"
+  ],
+  [
+   "GET",
+   "/skills/{name}"
+  ],
+  [
+   "GET",
+   "/status"
+  ],
+  [
+   "POST",
+   "/composites"
+  ],
+  [
+   "POST",
+   "/composites/draft"
+  ],
+  [
+   "POST",
+   "/estop"
+  ],
+  [
+   "POST",
+   "/handover"
+  ],
+  [
+   "POST",
+   "/jobs"
+  ],
+  [
+   "POST",
+   "/jobs/{job_id}/cancel"
+  ],
+  [
+   "POST",
+   "/notes"
+  ],
+  [
+   "POST",
+   "/requests"
+  ],
+  [
+   "POST",
+   "/scope"
+  ],
+  [
+   "POST",
+   "/skills/proposals"
+  ]
+ ],
+ "schemas": {
+  "CancelBody": [
+   "reason"
+  ],
+  "CompositeBody": [
+   "base_version",
+   "spec"
+  ],
+  "EstopBody": [
+   "reason"
+  ],
+  "HandoverBody": [
+   "next_steps",
+   "since",
+   "summary",
+   "title"
+  ],
+  "JobSubmit": [
+   "note",
+   "params",
+   "request_id",
+   "skill"
+  ],
+  "NoteBody": [
+   "content",
+   "kind",
+   "scope",
+   "tags",
+   "title"
+  ],
+  "ProposalBody": [
+   "code",
+   "name",
+   "rationale"
+  ],
+  "RequestBody": [
+   "kind",
+   "message"
+  ],
+  "ScopeBody": [
+   "experiment",
+   "force",
+   "reason",
+   "sample"
+  ],
+  "ScopeRef": [
+   "description",
+   "goal",
+   "id",
+   "name",
+   "sample_type"
+  ]
+ }
+}

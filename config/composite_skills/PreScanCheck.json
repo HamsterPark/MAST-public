@@ -1,0 +1,230 @@
+{
+  "name": "PreScanCheck",
+  "description": "预扫描 + 抓实时缓冲区的正反扫。**它给不出针尖判决** —— 缓冲区里的数据与 .sxm 不可比、且未必是本帧,所以 tip_ready/similarity 恒为 None(判不了),另报 inconclusive_reason 说明为什么。要针尖判决请用手写的PreScanCheck(它先读存盘的 .sxm)。",
+  "version": 2,
+  "safety_level": "confirm",
+  "params": [
+    {
+      "name": "center_x_m",
+      "type": "number",
+      "default": 0.0,
+      "description": "中心 X (m)",
+      "required": true
+    },
+    {
+      "name": "center_y_m",
+      "type": "number",
+      "default": 0.0,
+      "description": "中心 Y (m)",
+      "required": true
+    },
+    {
+      "name": "width_m",
+      "type": "number",
+      "default": 1e-07,
+      "description": "宽 (m，与完整扫描同宽)",
+      "required": true
+    },
+    {
+      "name": "quality_threshold",
+      "type": "number",
+      "default": 0.8,
+      "description": "【已不再接线】旧余弦阈,保留仅为兼容签名",
+      "required": false
+    },
+    {
+      "name": "line_time_s",
+      "type": "number",
+      "default": null,
+      "description": "每线时间（s），必须显式提供。声明式规格不读取仪器扫描档位表；请根据当前仪器配置、扫描范围和允许的线速度设置。",
+      "required": true
+    }
+  ],
+  "nodes": [
+    {
+      "type": "if",
+      "id": "need_line_time",
+      "cond": "not line_time_s",
+      "then": [
+        {
+          "type": "fail",
+          "reason": "'PreScanCheck（声明式）必须显式给 line_time_s；该规格不读取扫描档位表，也不推测每线时间。请根据当前仪器配置与扫描范围提供。'"
+        }
+      ],
+      "else": []
+    },
+    {
+      "type": "step",
+      "id": "configure",
+      "skill": "ConfigureScan",
+      "params": {
+        "center_x_m": {
+          "$expr": "center_x_m"
+        },
+        "center_y_m": {
+          "$expr": "center_y_m"
+        },
+        "width_m": {
+          "$expr": "width_m"
+        },
+        "height_m": {
+          "$expr": "width_m"
+        },
+        "set_scan_speed": false
+      }
+    },
+    {
+      "type": "step",
+      "id": "speed",
+      "skill": "SetScanSpeed",
+      "optional": true,
+      "params": {
+        "fwd_speed": {
+          "$expr": "width_m / line_time_s"
+        },
+        "bwd_speed": {
+          "$expr": "width_m / line_time_s"
+        },
+        "fwd_line_time": {
+          "$expr": "line_time_s"
+        },
+        "bwd_line_time": {
+          "$expr": "line_time_s"
+        },
+        "keep_const": 0
+      }
+    },
+    {
+      "type": "step",
+      "id": "start",
+      "skill": "StartScan",
+      "params": {}
+    },
+    {
+      "type": "step",
+      "id": "wait",
+      "skill": "WaitScanComplete",
+      "params": {
+        "timeout_ms": 15000
+      }
+    },
+    {
+      "type": "if",
+      "id": "timed_out",
+      "cond": "'timed_out' in wait and wait['timed_out']",
+      "then": [
+        {
+          "type": "step",
+          "id": "stop",
+          "skill": "StopScan",
+          "optional": true,
+          "params": {}
+        },
+        {
+          "type": "fail",
+          "reason": "'Pre-scan timed out'"
+        }
+      ],
+      "else": []
+    },
+    {
+      "type": "if",
+      "id": "stopped_early",
+      "cond": "'stopped_early' in wait and wait['stopped_early']",
+      "then": [
+        {
+          "type": "fail",
+          "reason": "'Pre-scan stopped early — the line was never finished, so it measures nothing'"
+        }
+      ],
+      "else": []
+    },
+    {
+      "type": "set",
+      "id": "tr0",
+      "var": "tip_ready",
+      "value": "None"
+    },
+    {
+      "type": "set",
+      "id": "sim0",
+      "var": "similarity",
+      "value": "None"
+    },
+    {
+      "type": "set",
+      "id": "why0",
+      "var": "inconclusive_reason",
+      "value": "'预扫描还没走到取数那一步'"
+    },
+    {
+      "type": "step",
+      "id": "fwd",
+      "skill": "GrabScanFrameData",
+      "optional": true,
+      "params": {
+        "channel_index": 0,
+        "direction": 1
+      }
+    },
+    {
+      "type": "step",
+      "id": "bwd",
+      "skill": "GrabScanFrameData",
+      "optional": true,
+      "params": {
+        "channel_index": 0,
+        "direction": 0
+      }
+    },
+    {
+      "type": "if",
+      "id": "have_lines",
+      "cond": "'_failed' not in fwd and '_failed' not in bwd",
+      "then": [
+        {
+          "type": "set",
+          "id": "why_buf",
+          "var": "inconclusive_reason",
+          "value": "'判不了：缓冲路径与 .sxm 文件路径的相似度不可直接比较，且缓冲内容未必对应当前帧，因此无法判定。请先读取对应的 .sxm 帧或重新采集；这项弃权不代表针尖不合格。'"
+        }
+      ],
+      "else": [
+        {
+          "type": "set",
+          "id": "why_read",
+          "var": "inconclusive_reason",
+          "value": "'实时缓冲区取不回正反扫数据(GrabScanFrameData 失败)—— 通信/模块问题,不是针尖问题。'"
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "name": "tip_ready",
+      "expr": "tip_ready"
+    },
+    {
+      "name": "similarity",
+      "expr": "similarity"
+    },
+    {
+      "name": "inconclusive_reason",
+      "expr": "inconclusive_reason"
+    }
+  ],
+  "success_when": "",
+  "fail_message": "",
+  "estimated_duration_s": 0.0,
+  "tags": [
+    "scan",
+    "prescan",
+    "tip",
+    "builtin"
+  ],
+  "author": "",
+  "notes": "Declarative twin of prescan_check.py:PreScanCheck (P5).",
+  "_saved_at": "",
+  "_content_sha256": "33f24680c9a8ac7e9132370d366a4a1c21145c7b632d5dc9b3ce36480620b22d",
+  "_factory_sha256": "33f24680c9a8ac7e9132370d366a4a1c21145c7b632d5dc9b3ce36480620b22d"
+}

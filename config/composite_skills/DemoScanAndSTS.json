@@ -1,0 +1,177 @@
+{
+  "name": "DemoScanAndSTS",
+  "description": "演示：扫描+存盘+多点 STS；某点移动失败则跳过该点采谱（_failed 标记）。",
+  "version": 1,
+  "safety_level": "auto",
+  "params": [
+    {
+      "name": "center_x_m",
+      "type": "number",
+      "default": 0.0,
+      "description": "中心 X (m)",
+      "required": false
+    },
+    {
+      "name": "center_y_m",
+      "type": "number",
+      "default": 0.0,
+      "description": "中心 Y (m)",
+      "required": false
+    },
+    {
+      "name": "scan_size_m",
+      "type": "number",
+      "default": 5e-08,
+      "description": "扫描尺寸 (m)",
+      "required": false
+    },
+    {
+      "name": "sts_count",
+      "type": "int",
+      "default": 5,
+      "description": "STS 点数",
+      "required": false
+    },
+    {
+      "name": "sts_start_v",
+      "type": "number",
+      "default": -1.0,
+      "description": "STS 起始 (V)",
+      "required": false
+    },
+    {
+      "name": "sts_end_v",
+      "type": "number",
+      "default": 1.0,
+      "description": "STS 终止 (V)",
+      "required": false
+    },
+    {
+      "name": "sts_num_points",
+      "type": "int",
+      "default": 100,
+      "description": "STS 点数",
+      "required": false
+    },
+    {
+      "name": "scan_timeout_s",
+      "type": "number",
+      "default": 180.0,
+      "description": "扫描超时 (s)",
+      "required": false
+    }
+  ],
+  "nodes": [
+    {
+      "type": "step",
+      "id": "configure_scan",
+      "skill": "ConfigureScan",
+      "params": {
+        "center_x_m": {
+          "$expr": "center_x_m"
+        },
+        "center_y_m": {
+          "$expr": "center_y_m"
+        },
+        "width_m": {
+          "$expr": "scan_size_m"
+        },
+        "height_m": {
+          "$expr": "scan_size_m"
+        }
+      }
+    },
+    {
+      "type": "step",
+      "id": "start",
+      "skill": "StartScan",
+      "params": {}
+    },
+    {
+      "type": "step",
+      "id": "wait",
+      "skill": "WaitScanComplete",
+      "params": {
+        "timeout_ms": {
+          "$expr": "scan_timeout_s * 1000"
+        }
+      }
+    },
+    {
+      "type": "step",
+      "id": "save",
+      "skill": "SaveScan",
+      "optional": true,
+      "params": {}
+    },
+    {
+      "type": "step",
+      "id": "configure_sts",
+      "skill": "ConfigureSTS",
+      "params": {
+        "start_v": {
+          "$expr": "sts_start_v"
+        },
+        "end_v": {
+          "$expr": "sts_end_v"
+        },
+        "num_points": {
+          "$expr": "sts_num_points"
+        }
+      }
+    },
+    {
+      "type": "loop",
+      "id": "pts",
+      "mode": "repeat",
+      "count": "sts_count",
+      "var": "i",
+      "body": [
+        {
+          "type": "step",
+          "id": "move",
+          "skill": "MoveToXY",
+          "optional": true,
+          "params": {
+            "x_m": {
+              "$expr": "center_x_m + (i - (sts_count - 1) / 2) * scan_size_m / sts_count"
+            },
+            "y_m": {
+              "$expr": "center_y_m"
+            },
+            "wait": true
+          }
+        },
+        {
+          "type": "if",
+          "id": "moved",
+          "cond": "'_failed' not in move",
+          "then": [
+            {
+              "type": "step",
+              "id": "sts",
+              "skill": "AcquireSTS",
+              "optional": true,
+              "params": {}
+            }
+          ],
+          "else": []
+        }
+      ]
+    }
+  ],
+  "outputs": [],
+  "success_when": "",
+  "fail_message": "",
+  "estimated_duration_s": 0.0,
+  "tags": [
+    "demo",
+    "scan",
+    "sts",
+    "builtin"
+  ],
+  "author": "",
+  "notes": "Declarative twin of demo_scan_and_sts.py:DemoScanAndSTS (P5).",
+  "_saved_at": "",
+  "_content_sha256": "fa44e960082b6ab1a25d58b2afd2056c2f9b0d02051dd951f26ad6e1c23601a7"
+}

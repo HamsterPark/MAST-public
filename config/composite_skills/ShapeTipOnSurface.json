@@ -1,0 +1,351 @@
+{
+  "name": "ShapeTipOnSurface",
+  "description": "样品上整针：宽扫→选平点→渐进扎针(接触即停)→扫坑→评圆度(够圆即收)→不行换点重试；无论成败都恢复 Z 反馈(try/finally)。",
+  "version": 2,
+  "safety_level": "confirm",
+  "params": [
+    {
+      "name": "wide_scan_width_m",
+      "type": "number",
+      "default": 1e-07,
+      "description": "宽扫宽 (m)",
+      "required": false
+    },
+    {
+      "name": "cluster_window_m",
+      "type": "number",
+      "default": 5e-09,
+      "description": "坑区窗 (m)",
+      "required": false
+    },
+    {
+      "name": "shallow_depth_m",
+      "type": "number",
+      "default": -5e-10,
+      "description": "最浅扎入 (m)",
+      "required": false
+    },
+    {
+      "name": "deep_depth_m",
+      "type": "number",
+      "default": -3e-09,
+      "description": "最深扎入 (m)",
+      "required": false
+    },
+    {
+      "name": "n_depth_steps",
+      "type": "int",
+      "default": 5,
+      "description": "深度步数",
+      "required": false
+    },
+    {
+      "name": "contact_threshold_a",
+      "type": "number",
+      "default": 5e-08,
+      "description": "接触电流阈 (A)",
+      "required": false
+    },
+    {
+      "name": "min_axis_ratio",
+      "type": "number",
+      "default": 0.75,
+      "description": "圆度阈(等效轴比;旧 round_threshold=0.65 已作废,不可换算)",
+      "required": false
+    },
+    {
+      "name": "max_attempts",
+      "type": "int",
+      "default": 3,
+      "description": "最大尝试",
+      "required": false
+    }
+  ],
+  "nodes": [
+    {
+      "type": "set",
+      "id": "a0",
+      "var": "accepted",
+      "value": "False"
+    },
+    {
+      "type": "set",
+      "id": "at0",
+      "var": "attempt",
+      "value": "0"
+    },
+    {
+      "type": "try",
+      "body": [
+        {
+          "type": "loop",
+          "id": "attempts",
+          "mode": "while",
+          "cond": "not accepted and attempt < max_attempts",
+          "var": "att",
+          "max_iter": 10,
+          "body": [
+            {
+              "type": "set",
+              "id": "ua",
+              "var": "attempt",
+              "value": "attempt + 1"
+            },
+            {
+              "type": "step",
+              "id": "wide_configure",
+              "skill": "ConfigureScan",
+              "params": {
+                "center_x_m": 0.0,
+                "center_y_m": 0.0,
+                "width_m": {
+                  "$expr": "wide_scan_width_m"
+                },
+                "height_m": {
+                  "$expr": "wide_scan_width_m"
+                }
+              }
+            },
+            {
+              "type": "step",
+              "id": "wide_start",
+              "skill": "StartScan",
+              "params": {}
+            },
+            {
+              "type": "step",
+              "id": "wide_wait",
+              "skill": "WaitScanComplete",
+              "params": {
+                "timeout_ms": 300000
+              }
+            },
+            {
+              "type": "if",
+              "id": "wide_incomplete",
+              "cond": "not ('_failed' not in wide_wait and not ('timed_out' in wide_wait and wide_wait['timed_out']) and not ('stopped_early' in wide_wait and wide_wait['stopped_early']))",
+              "then": [
+                {
+                  "type": "fail",
+                  "reason": "'wide scan did not finish — refusing to pick a plunge site from an incomplete frame'"
+                }
+              ],
+              "else": []
+            },
+            {
+              "type": "step",
+              "id": "wide_save",
+              "skill": "SaveScan",
+              "optional": true,
+              "params": {}
+            },
+            {
+              "type": "step",
+              "id": "wide",
+              "skill": "GetLatestScanFile",
+              "params": {}
+            },
+            {
+              "type": "step",
+              "id": "flat",
+              "skill": "FindFlatRegion",
+              "params": {
+                "scan_path": {
+                  "$expr": "wide['path']"
+                },
+                "min_separation_m": {
+                  "$expr": "cluster_window_m"
+                }
+              }
+            },
+            {
+              "type": "set",
+              "id": "c0",
+              "var": "contact",
+              "value": "False"
+            },
+            {
+              "type": "loop",
+              "id": "plunge",
+              "mode": "repeat",
+              "count": "n_depth_steps",
+              "var": "i",
+              "body": [
+                {
+                  "type": "set",
+                  "id": "depth",
+                  "var": "d",
+                  "value": "shallow_depth_m + (deep_depth_m - shallow_depth_m) * i / max(1, n_depth_steps - 1)"
+                },
+                {
+                  "type": "step",
+                  "id": "shape",
+                  "skill": "TipShape",
+                  "optional": true,
+                  "params": {
+                    "tip_lift_m": {
+                      "$expr": "d"
+                    },
+                    "lift_height_m": {
+                      "$expr": "0 - d"
+                    },
+                    "change_bias": false,
+                    "restore_feedback": true
+                  }
+                },
+                {
+                  "type": "step",
+                  "id": "mon",
+                  "skill": "MonitorCurrent",
+                  "optional": true,
+                  "params": {
+                    "duration_s": 0.3,
+                    "poll_hz": 100,
+                    "contact_threshold_a": {
+                      "$expr": "contact_threshold_a"
+                    },
+                    "min_contact_samples": 3
+                  }
+                },
+                {
+                  "type": "if",
+                  "id": "hit",
+                  "cond": "'_failed' not in mon and mon['contact_detected']",
+                  "then": [
+                    {
+                      "type": "set",
+                      "id": "sc",
+                      "var": "contact",
+                      "value": "True"
+                    },
+                    {
+                      "type": "break"
+                    }
+                  ],
+                  "else": []
+                }
+              ]
+            },
+            {
+              "type": "if",
+              "id": "nocontact",
+              "cond": "not contact",
+              "then": [
+                {
+                  "type": "continue"
+                }
+              ],
+              "else": []
+            },
+            {
+              "type": "step",
+              "id": "cluster_configure",
+              "skill": "ConfigureScan",
+              "params": {
+                "center_x_m": {
+                  "$expr": "flat['center_x_m']"
+                },
+                "center_y_m": {
+                  "$expr": "flat['center_y_m']"
+                },
+                "width_m": {
+                  "$expr": "cluster_window_m"
+                },
+                "height_m": {
+                  "$expr": "cluster_window_m"
+                }
+              }
+            },
+            {
+              "type": "step",
+              "id": "cluster_start",
+              "skill": "StartScan",
+              "optional": true,
+              "params": {}
+            },
+            {
+              "type": "step",
+              "id": "cluster_wait",
+              "skill": "WaitScanComplete",
+              "optional": true,
+              "params": {
+                "timeout_ms": 120000
+              }
+            },
+            {
+              "type": "step",
+              "id": "clpath",
+              "skill": "GetLatestScanFile",
+              "optional": true,
+              "params": {}
+            },
+            {
+              "type": "step",
+              "id": "round",
+              "skill": "AssessClusterRoundness",
+              "optional": true,
+              "params": {
+                "scan_path": {
+                  "$expr": "clpath['path']"
+                },
+                "min_axis_ratio": {
+                  "$expr": "min_axis_ratio"
+                }
+              }
+            },
+            {
+              "type": "if",
+              "id": "isround",
+              "cond": "'_failed' not in round and round['is_round'] and '_failed' not in cluster_wait and not ('timed_out' in cluster_wait and cluster_wait['timed_out']) and not ('stopped_early' in cluster_wait and cluster_wait['stopped_early'])",
+              "then": [
+                {
+                  "type": "set",
+                  "id": "acc",
+                  "var": "accepted",
+                  "value": "True"
+                },
+                {
+                  "type": "break"
+                }
+              ],
+              "else": []
+            }
+          ]
+        }
+      ],
+      "finally": [
+        {
+          "type": "step",
+          "id": "restore_fb",
+          "skill": "ZControllerOnOff",
+          "optional": true,
+          "params": {
+            "enable": true
+          }
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "name": "accepted",
+      "expr": "accepted"
+    },
+    {
+      "name": "attempts",
+      "expr": "attempt"
+    }
+  ],
+  "success_when": "accepted",
+  "fail_message": "'no round cluster after ' + str(attempt) + ' attempts'",
+  "estimated_duration_s": 0.0,
+  "tags": [
+    "tip",
+    "shaping",
+    "builtin"
+  ],
+  "author": "",
+  "notes": "Declarative twin of shape_tip_on_surface.py:ShapeTipOnSurface (P5).",
+  "_saved_at": "",
+  "_content_sha256": "12e52bbdaef472913a5620a40d5ca38384581b7d61f86c3c37f9025de613ebb9"
+}

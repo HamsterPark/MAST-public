@@ -1,0 +1,251 @@
+{
+  "name": "SurveySurface_TileScan",
+  "description": "把方形区域切成 grid_n×grid_n 瓦片逐块巡扫建全局概览；部分成功；可评质并记最佳瓦。",
+  "version": 1,
+  "safety_level": "confirm",
+  "params": [
+    {
+      "name": "center_x_m",
+      "type": "number",
+      "default": 0.0,
+      "description": "中心 X (m)",
+      "required": false
+    },
+    {
+      "name": "center_y_m",
+      "type": "number",
+      "default": 0.0,
+      "description": "中心 Y (m)",
+      "required": false
+    },
+    {
+      "name": "grid_n",
+      "type": "int",
+      "default": 3,
+      "description": "每边瓦片数 (N×N)",
+      "required": false
+    },
+    {
+      "name": "tile_size_m",
+      "type": "number",
+      "default": 5e-08,
+      "description": "瓦片边长 (m)",
+      "required": false
+    },
+    {
+      "name": "line_time_s",
+      "type": "number",
+      "default": 0.1,
+      "description": "每行时间 (s)",
+      "required": false
+    },
+    {
+      "name": "channels",
+      "type": "string",
+      "default": "Z,Current",
+      "description": "采集通道",
+      "required": false
+    },
+    {
+      "name": "wait_timeout_s",
+      "type": "number",
+      "default": 180.0,
+      "description": "每瓦等扫超时 (s)",
+      "required": false
+    },
+    {
+      "name": "assess_quality",
+      "type": "bool",
+      "default": true,
+      "description": "是否逐瓦评质",
+      "required": false
+    }
+  ],
+  "nodes": [
+    {
+      "type": "set",
+      "id": "s0",
+      "var": "scanned",
+      "value": "0"
+    },
+    {
+      "type": "set",
+      "id": "bq",
+      "var": "best_q",
+      "value": "-1.0"
+    },
+    {
+      "type": "set",
+      "id": "bt",
+      "var": "best_tile",
+      "value": "-1"
+    },
+    {
+      "type": "set",
+      "id": "ti",
+      "var": "tile_idx",
+      "value": "-1"
+    },
+    {
+      "type": "loop",
+      "id": "rows",
+      "mode": "repeat",
+      "count": "grid_n",
+      "var": "row",
+      "body": [
+        {
+          "type": "loop",
+          "id": "cols",
+          "mode": "repeat",
+          "count": "grid_n",
+          "var": "col",
+          "body": [
+            {
+              "type": "set",
+              "id": "inc_idx",
+              "var": "tile_idx",
+              "value": "tile_idx + 1"
+            },
+            {
+              "type": "step",
+              "id": "configure",
+              "skill": "ConfigureScan",
+              "optional": true,
+              "params": {
+                "center_x_m": {
+                  "$expr": "center_x_m + (col - (grid_n - 1) / 2) * tile_size_m"
+                },
+                "center_y_m": {
+                  "$expr": "center_y_m + (row - (grid_n - 1) / 2) * tile_size_m"
+                },
+                "width_m": {
+                  "$expr": "tile_size_m"
+                },
+                "height_m": {
+                  "$expr": "tile_size_m"
+                },
+                "channels": {
+                  "$expr": "channels"
+                }
+              }
+            },
+            {
+              "type": "step",
+              "id": "speed",
+              "skill": "SetScanSpeed",
+              "optional": true,
+              "params": {
+                "fwd_speed": {
+                  "$expr": "tile_size_m / line_time_s"
+                },
+                "bwd_speed": {
+                  "$expr": "tile_size_m / line_time_s"
+                },
+                "fwd_line_time": {
+                  "$expr": "line_time_s"
+                },
+                "bwd_line_time": {
+                  "$expr": "line_time_s"
+                },
+                "keep_const": 0
+              }
+            },
+            {
+              "type": "step",
+              "id": "start",
+              "skill": "StartScan",
+              "optional": true,
+              "params": {}
+            },
+            {
+              "type": "step",
+              "id": "wait",
+              "skill": "WaitScanComplete",
+              "optional": true,
+              "params": {
+                "timeout_ms": {
+                  "$expr": "wait_timeout_s * 1000"
+                }
+              }
+            },
+            {
+              "type": "if",
+              "id": "tile_ok",
+              "cond": "'_failed' not in wait",
+              "then": [
+                {
+                  "type": "set",
+                  "id": "inc",
+                  "var": "scanned",
+                  "value": "scanned + 1"
+                },
+                {
+                  "type": "if",
+                  "id": "do_assess",
+                  "cond": "assess_quality",
+                  "then": [
+                    {
+                      "type": "step",
+                      "id": "assess",
+                      "skill": "AssessImageQuality",
+                      "optional": true,
+                      "params": {}
+                    },
+                    {
+                      "type": "if",
+                      "id": "better",
+                      "cond": "'_failed' not in assess and assess['fft_quality'] > best_q",
+                      "then": [
+                        {
+                          "type": "set",
+                          "id": "ub",
+                          "var": "best_q",
+                          "value": "assess['fft_quality']"
+                        },
+                        {
+                          "type": "set",
+                          "id": "ubt",
+                          "var": "best_tile",
+                          "value": "tile_idx"
+                        }
+                      ],
+                      "else": []
+                    }
+                  ],
+                  "else": []
+                }
+              ],
+              "else": []
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "name": "scanned",
+      "expr": "scanned"
+    },
+    {
+      "name": "recommended_tile",
+      "expr": "best_tile"
+    },
+    {
+      "name": "best_quality",
+      "expr": "best_q"
+    }
+  ],
+  "success_when": "scanned >= 1",
+  "fail_message": "'no tile scanned'",
+  "estimated_duration_s": 0.0,
+  "tags": [
+    "scan",
+    "survey",
+    "builtin"
+  ],
+  "author": "",
+  "notes": "Declarative twin of survey_surface.py:SurveySurface_TileScan (P5).",
+  "_saved_at": "",
+  "_content_sha256": "c342a1aeb29850154ec2377f34275b16e822be2d89cfd09ee16d01aa8244211f"
+}

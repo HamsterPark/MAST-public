@@ -1,0 +1,160 @@
+{
+  "name": "GridSTS",
+  "description": "N×N 栅格 STS：逐点移动+采谱；部分成功（≥1 点成功即算成功）。",
+  "version": 1,
+  "safety_level": "confirm",
+  "params": [
+    {
+      "name": "center_x_m",
+      "type": "number",
+      "default": 0.0,
+      "description": "中心 X (m)",
+      "required": true
+    },
+    {
+      "name": "center_y_m",
+      "type": "number",
+      "default": 0.0,
+      "description": "中心 Y (m)",
+      "required": true
+    },
+    {
+      "name": "nx",
+      "type": "int",
+      "default": 3,
+      "description": "X 点数",
+      "required": false
+    },
+    {
+      "name": "ny",
+      "type": "int",
+      "default": 3,
+      "description": "Y 点数",
+      "required": false
+    },
+    {
+      "name": "spacing_m",
+      "type": "number",
+      "default": 1e-09,
+      "description": "点间距 (m)",
+      "required": true
+    },
+    {
+      "name": "start_v",
+      "type": "number",
+      "default": -2.0,
+      "description": "STS 起始 (V)",
+      "required": false
+    },
+    {
+      "name": "end_v",
+      "type": "number",
+      "default": 2.0,
+      "description": "STS 终止 (V)",
+      "required": false
+    },
+    {
+      "name": "num_points",
+      "type": "int",
+      "default": 40,
+      "description": "STS 点数",
+      "required": false
+    }
+  ],
+  "nodes": [
+    {
+      "type": "set",
+      "id": "init",
+      "var": "succeeded",
+      "value": "0"
+    },
+    {
+      "type": "step",
+      "id": "configure",
+      "skill": "ConfigureSTS",
+      "params": {
+        "start_v": {
+          "$expr": "start_v"
+        },
+        "end_v": {
+          "$expr": "end_v"
+        },
+        "num_points": {
+          "$expr": "num_points"
+        }
+      }
+    },
+    {
+      "type": "loop",
+      "id": "rows",
+      "mode": "repeat",
+      "count": "ny",
+      "var": "iy",
+      "body": [
+        {
+          "type": "loop",
+          "id": "cols",
+          "mode": "repeat",
+          "count": "nx",
+          "var": "ix",
+          "body": [
+            {
+              "type": "step",
+              "id": "move",
+              "skill": "MoveToXY",
+              "optional": true,
+              "params": {
+                "x_m": {
+                  "$expr": "center_x_m + (ix - (nx - 1) / 2) * spacing_m"
+                },
+                "y_m": {
+                  "$expr": "center_y_m + (iy - (ny - 1) / 2) * spacing_m"
+                },
+                "wait": true
+              }
+            },
+            {
+              "type": "step",
+              "id": "sts",
+              "skill": "AcquireSTS",
+              "optional": true,
+              "params": {}
+            },
+            {
+              "type": "if",
+              "id": "ok",
+              "cond": "'_failed' not in sts",
+              "then": [
+                {
+                  "type": "set",
+                  "id": "inc",
+                  "var": "succeeded",
+                  "value": "succeeded + 1"
+                }
+              ],
+              "else": []
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "name": "succeeded",
+      "expr": "succeeded"
+    }
+  ],
+  "success_when": "succeeded >= 1",
+  "fail_message": "'no STS point succeeded'",
+  "estimated_duration_s": 0.0,
+  "tags": [
+    "sts",
+    "grid",
+    "builtin"
+  ],
+  "author": "",
+  "notes": "Declarative twin of grid_sts.py:GridSTS (P5).",
+  "_saved_at": "",
+  "_content_sha256": "1b7308a0428327c29cdaf093d32a80642810c27a5967e9d7bf601d1710b0c079"
+}

@@ -1,0 +1,172 @@
+{
+  "name": "ConditionTip",
+  "description": "修针闭环：脉冲→扫描→FFT 评质→重复，直到达标或用尽次数。",
+  "version": 1,
+  "safety_level": "confirm",
+  "params": [
+    {
+      "name": "pulse_v",
+      "type": "number",
+      "default": 3.0,
+      "description": "脉冲电压 (V)",
+      "required": true
+    },
+    {
+      "name": "max_attempts",
+      "type": "int",
+      "default": 5,
+      "description": "最大轮次",
+      "required": false
+    },
+    {
+      "name": "target_quality",
+      "type": "number",
+      "default": 0.3,
+      "description": "目标质量",
+      "required": false
+    },
+    {
+      "name": "center_x_m",
+      "type": "number",
+      "default": 0.0,
+      "description": "扫描中心 X (m)",
+      "required": false
+    },
+    {
+      "name": "center_y_m",
+      "type": "number",
+      "default": 0.0,
+      "description": "扫描中心 Y (m)",
+      "required": false
+    },
+    {
+      "name": "scan_width_m",
+      "type": "number",
+      "default": 1e-08,
+      "description": "测试扫描宽 (m)",
+      "required": false
+    }
+  ],
+  "nodes": [
+    {
+      "type": "set",
+      "id": "i0",
+      "var": "attempt",
+      "value": "0"
+    },
+    {
+      "type": "set",
+      "id": "q0",
+      "var": "quality",
+      "value": "0.0"
+    },
+    {
+      "type": "set",
+      "id": "t0",
+      "var": "target_reached",
+      "value": "False"
+    },
+    {
+      "type": "loop",
+      "id": "loop",
+      "mode": "while",
+      "cond": "not target_reached and attempt < max_attempts",
+      "var": "it",
+      "max_iter": 50,
+      "body": [
+        {
+          "type": "step",
+          "id": "pulse",
+          "skill": "TipPulse",
+          "params": {
+            "pulse_v": {
+              "$expr": "pulse_v"
+            },
+            "duration_s": 0.1,
+            "count": 1
+          }
+        },
+        {
+          "type": "step",
+          "id": "configure",
+          "skill": "ConfigureScan",
+          "params": {
+            "center_x_m": {
+              "$expr": "center_x_m"
+            },
+            "center_y_m": {
+              "$expr": "center_y_m"
+            },
+            "width_m": {
+              "$expr": "scan_width_m"
+            },
+            "height_m": {
+              "$expr": "scan_width_m"
+            }
+          }
+        },
+        {
+          "type": "step",
+          "id": "start",
+          "skill": "StartScan",
+          "params": {}
+        },
+        {
+          "type": "step",
+          "id": "wait",
+          "skill": "WaitScanComplete",
+          "params": {
+            "timeout_ms": 60000
+          }
+        },
+        {
+          "type": "step",
+          "id": "assess",
+          "skill": "AssessImageQuality",
+          "optional": true,
+          "params": {}
+        },
+        {
+          "type": "set",
+          "id": "uq",
+          "var": "quality",
+          "value": "assess['fft_quality'] if '_failed' not in assess else 0.0"
+        },
+        {
+          "type": "set",
+          "id": "ut",
+          "var": "target_reached",
+          "value": "quality >= target_quality"
+        },
+        {
+          "type": "set",
+          "id": "ua",
+          "var": "attempt",
+          "value": "attempt + 1"
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "name": "attempts",
+      "expr": "attempt"
+    },
+    {
+      "name": "final_quality",
+      "expr": "quality"
+    }
+  ],
+  "success_when": "target_reached",
+  "fail_message": "'target quality not reached after ' + str(attempt) + ' attempts'",
+  "estimated_duration_s": 0.0,
+  "tags": [
+    "tip",
+    "conditioning",
+    "builtin"
+  ],
+  "author": "",
+  "notes": "Declarative twin of condition_tip.py:ConditionTip (P5).",
+  "_saved_at": "",
+  "_content_sha256": "8b64fad213812ff8e79f81a9333afd8230821b2412480e09bfc2753585efa968"
+}

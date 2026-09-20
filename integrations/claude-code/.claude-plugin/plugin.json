@@ -1,0 +1,63 @@
+{
+  "name": "mast",
+  "version": "0.1.0",
+  "description": "Drive a MAST-controlled scanning tunneling microscope (Nanonis) from Claude Code: briefing, skill search, jobs with polling, raw data download, notes, operator requests and handover, over MAST's external agent API. Standard-library MCP server, no packages to install.",
+  "author": {
+    "name": "Yuanhao Lyu"
+  },
+  "repository": "https://github.com/HamsterPark/MAST-public",
+  "license": "MIT",
+  "keywords": [
+    "stm",
+    "scanning-tunneling-microscope",
+    "nanonis",
+    "microscopy",
+    "lab-automation",
+    "mcp",
+    "mast"
+  ],
+  "userConfig": {
+    "python": {
+      "type": "file",
+      "title": "Python interpreter",
+      "description": "Python 3.10+ for the MCP server; no additional packages required. The public source package does not bundle Python. Use an installed interpreter, or MASTv2/pyruntime/python.exe from an existing full installation. On Windows use an explicit interpreter path.",
+      "default": "python"
+    },
+    "mast_url": {
+      "type": "string",
+      "title": "MAST address",
+      "description": "Root address of the MAST service. Same machine: http://127.0.0.1:7862. LAN mode uses https. Addresses of other machines are refused unless 'Allow a remote MAST' is on.",
+      "default": "http://127.0.0.1:7862"
+    },
+    "mast_user": {
+      "type": "string",
+      "title": "MAST user (LAN mode)",
+      "description": "HTTP Basic user name of MAST's LAN access. Leave empty for a MAST on this machine.",
+      "default": ""
+    },
+    "mast_password": {
+      "type": "string",
+      "title": "MAST password (LAN mode)",
+      "description": "HTTP Basic password for MAST LAN access. Marked sensitive and stored by the client; storage protection depends on platform. Leave empty for a local MAST service.",
+      "sensitive": true
+    },
+    "verify_tls": {
+      "type": "boolean",
+      "title": "Verify TLS certificate",
+      "description": "Turn off only for the instrument PC's self-signed certificate in LAN mode.",
+      "default": true
+    },
+    "allow_remote": {
+      "type": "boolean",
+      "title": "Allow a remote MAST",
+      "description": "Allow a MAST address that is not this machine. Control is meant for this machine or a VPN; never expose MAST to the open internet.",
+      "default": false
+    },
+    "actor": {
+      "type": "string",
+      "title": "Actor name",
+      "description": "Name your actions are attributed to in MAST's records (letters, digits, dot, dash, underscore).",
+      "default": "claude-code"
+    }
+  }
+}

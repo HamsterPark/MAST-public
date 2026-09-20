@@ -1,0 +1,14 @@
+{
+  "name": "mast",
+  "description": "Claude Code plugins for MAST, an autonomous control system for scanning tunneling microscopes (Nanonis).",
+  "owner": {
+    "name": "Yuanhao Lyu"
+  },
+  "plugins": [
+    {
+      "name": "mast",
+      "source": "./integrations/claude-code",
+      "description": "Drive a MAST-controlled scanning tunneling microscope (Nanonis) from Claude Code through MAST's external agent API."
+    }
+  ]
+}

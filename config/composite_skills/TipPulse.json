@@ -1,0 +1,79 @@
+{
+  "name": "TipPulse",
+  "description": "偏压脉冲修针：先快照当前偏压，再施加 count 次硬件定时脉冲。",
+  "version": 1,
+  "safety_level": "confirm",
+  "params": [
+    {
+      "name": "pulse_v",
+      "type": "number",
+      "default": 3.0,
+      "description": "脉冲电压 (V)",
+      "required": true
+    },
+    {
+      "name": "duration_s",
+      "type": "number",
+      "default": 0.1,
+      "description": "脉冲宽度 (s)",
+      "required": false
+    },
+    {
+      "name": "count",
+      "type": "int",
+      "default": 1,
+      "description": "脉冲次数",
+      "required": false
+    }
+  ],
+  "nodes": [
+    {
+      "type": "step",
+      "id": "snapshot_bias",
+      "skill": "GetBias",
+      "params": {}
+    },
+    {
+      "type": "loop",
+      "id": "pulses",
+      "mode": "repeat",
+      "count": "count",
+      "var": "i",
+      "body": [
+        {
+          "type": "step",
+          "id": "pulse",
+          "skill": "BiasPulse",
+          "params": {
+            "width_s": {
+              "$expr": "duration_s"
+            },
+            "bias_v": {
+              "$expr": "pulse_v"
+            },
+            "z_hold": 0,
+            "absolute": true
+          }
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "name": "original_bias_v",
+      "expr": "snapshot_bias['bias_v']"
+    }
+  ],
+  "success_when": "",
+  "fail_message": "",
+  "estimated_duration_s": 0.0,
+  "tags": [
+    "tip",
+    "conditioning",
+    "builtin"
+  ],
+  "author": "",
+  "notes": "Declarative twin of tip_pulse.py:TipPulse (P5).",
+  "_saved_at": "",
+  "_content_sha256": "2c5f69c2a5976be20baf959f99e50133d7a4b5e9a041dee4d6db428ead4f5b84"
+}

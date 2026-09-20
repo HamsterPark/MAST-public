@@ -1,0 +1,167 @@
+{
+  "name": "FullScan",
+  "description": "一步式扫描：配置帧+速度→启动→等结束→撞针检测；超时或撞针则失败。",
+  "version": 1,
+  "safety_level": "confirm",
+  "params": [
+    {
+      "name": "center_x_m",
+      "type": "number",
+      "default": 0.0,
+      "description": "扫描中心 X (m)",
+      "required": true
+    },
+    {
+      "name": "center_y_m",
+      "type": "number",
+      "default": 0.0,
+      "description": "扫描中心 Y (m)",
+      "required": true
+    },
+    {
+      "name": "width_m",
+      "type": "number",
+      "default": 1e-07,
+      "description": "宽 (m)",
+      "required": true
+    },
+    {
+      "name": "height_m",
+      "type": "number",
+      "default": 1e-07,
+      "description": "高 (m)",
+      "required": true
+    },
+    {
+      "name": "line_time_s",
+      "type": "number",
+      "default": 0.1,
+      "description": "每行时间 (s)",
+      "required": false
+    },
+    {
+      "name": "channels",
+      "type": "string",
+      "default": "Z,Current",
+      "description": "采集通道",
+      "required": false
+    },
+    {
+      "name": "wait_timeout_s",
+      "type": "number",
+      "default": 60.0,
+      "description": "等扫完超时 (s)",
+      "required": false
+    }
+  ],
+  "nodes": [
+    {
+      "type": "step",
+      "id": "configure",
+      "skill": "ConfigureScan",
+      "params": {
+        "center_x_m": {
+          "$expr": "center_x_m"
+        },
+        "center_y_m": {
+          "$expr": "center_y_m"
+        },
+        "width_m": {
+          "$expr": "width_m"
+        },
+        "height_m": {
+          "$expr": "height_m"
+        },
+        "channels": {
+          "$expr": "channels"
+        },
+        "set_scan_speed": false
+      }
+    },
+    {
+      "type": "step",
+      "id": "set_speed",
+      "skill": "SetScanSpeed",
+      "params": {
+        "fwd_speed": {
+          "$expr": "width_m / line_time_s"
+        },
+        "bwd_speed": {
+          "$expr": "width_m / line_time_s"
+        },
+        "fwd_line_time": {
+          "$expr": "line_time_s"
+        },
+        "bwd_line_time": {
+          "$expr": "line_time_s"
+        },
+        "keep_const": 0
+      }
+    },
+    {
+      "type": "step",
+      "id": "start",
+      "skill": "StartScan",
+      "params": {}
+    },
+    {
+      "type": "step",
+      "id": "wait",
+      "skill": "WaitScanComplete",
+      "params": {
+        "timeout_ms": {
+          "$expr": "wait_timeout_s * 1000"
+        }
+      }
+    },
+    {
+      "type": "if",
+      "id": "timed_out",
+      "cond": "wait['timed_out']",
+      "then": [
+        {
+          "type": "fail",
+          "reason": "'Scan timed out'"
+        }
+      ],
+      "else": []
+    },
+    {
+      "type": "step",
+      "id": "crash",
+      "skill": "CheckScanForCrash",
+      "params": {
+        "channels": "0,14"
+      }
+    },
+    {
+      "type": "if",
+      "id": "crashed",
+      "cond": "crash['crash_indicator']",
+      "then": [
+        {
+          "type": "fail",
+          "reason": "'CRASH_DETECTED: ' + crash['status']"
+        }
+      ],
+      "else": []
+    }
+  ],
+  "outputs": [
+    {
+      "name": "crash_check",
+      "expr": "crash['status']"
+    }
+  ],
+  "success_when": "",
+  "fail_message": "",
+  "estimated_duration_s": 0.0,
+  "tags": [
+    "scan",
+    "builtin"
+  ],
+  "author": "",
+  "notes": "Declarative twin of full_scan.py:FullScan (P5).",
+  "_saved_at": "",
+  "_content_sha256": "5bf18e6c93628e9af2c9cc0d384b854e676d56512a493f916aa8f3765509fc38"
+}

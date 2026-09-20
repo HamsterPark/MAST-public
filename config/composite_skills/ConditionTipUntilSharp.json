@@ -1,0 +1,98 @@
+{
+  "name": "ConditionTipUntilSharp",
+  "description": "反复脉冲修复针尖,每次评估质量,直到合格或达到最大次数。",
+  "version": 36,
+  "safety_level": "confirm",
+  "params": [
+    {
+      "name": "pulse_v",
+      "type": "number",
+      "default": 3.0,
+      "description": "修复脉冲电压 (V)",
+      "required": true
+    },
+    {
+      "name": "quality_threshold",
+      "type": "number",
+      "default": 0.3,
+      "description": "合格质量阈值 (AssessImageQuality 的 fft_quality, 0-1)",
+      "required": false
+    },
+    {
+      "name": "max_attempts",
+      "type": "int",
+      "default": 5,
+      "description": "最大尝试次数",
+      "required": false
+    }
+  ],
+  "nodes": [
+    {
+      "type": "set",
+      "id": "init_attempts",
+      "var": "attempts",
+      "value": "0"
+    },
+    {
+      "type": "set",
+      "id": "init_sharp",
+      "var": "sharp",
+      "value": "False"
+    },
+    {
+      "type": "loop",
+      "id": "repair_loop",
+      "mode": "while",
+      "cond": "not sharp and attempts < max_attempts",
+      "var": "iter",
+      "max_iter": 100,
+      "body": [
+        {
+          "type": "step",
+          "id": "pulse",
+          "skill": "BiasPulse",
+          "params": {
+            "bias_v": {
+              "$expr": "pulse_v"
+            },
+            "width_s": 0.1
+          }
+        },
+        {
+          "type": "step",
+          "id": "q",
+          "skill": "AssessImageQuality",
+          "params": {}
+        },
+        {
+          "type": "set",
+          "id": "upd_sharp",
+          "var": "sharp",
+          "value": "q['fft_quality'] >= quality_threshold"
+        },
+        {
+          "type": "set",
+          "id": "upd_attempts",
+          "var": "attempts",
+          "value": "attempts + 1"
+        }
+      ]
+    },
+    {
+      "type": "set",
+      "id": "verdict",
+      "var": "result",
+      "value": "'tip conditioned' if sharp else 'tip still blunt after max attempts'"
+    }
+  ],
+  "outputs": [],
+  "estimated_duration_s": 0.0,
+  "tags": [
+    "tip",
+    "conditioning",
+    "template"
+  ],
+  "author": "",
+  "notes": "Functional example: BiasPulse followed by AssessImageQuality, using the fft_quality score from 0 to 1.",
+  "_saved_at": ""
+}

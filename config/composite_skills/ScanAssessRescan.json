@@ -1,0 +1,106 @@
+{
+  "name": "ScanAssessRescan",
+  "description": "扫描成像后评估图像质量,不合格则重扫,直到合格或达到最大重扫次数。",
+  "version": 1,
+  "safety_level": "confirm",
+  "params": [
+    {
+      "name": "quality_threshold",
+      "type": "number",
+      "default": 6.0,
+      "description": "合格图像质量阈值",
+      "required": false
+    },
+    {
+      "name": "max_rescans",
+      "type": "int",
+      "default": 3,
+      "description": "最大重扫次数",
+      "required": false
+    }
+  ],
+  "nodes": [
+    {
+      "type": "set",
+      "id": "init_good",
+      "var": "good",
+      "value": "False"
+    },
+    {
+      "type": "set",
+      "id": "init_n",
+      "var": "n",
+      "value": "0"
+    },
+    {
+      "type": "loop",
+      "id": "rescan_loop",
+      "mode": "while",
+      "cond": "not good and n < max_rescans",
+      "var": "iter",
+      "max_iter": 50,
+      "body": [
+        {
+          "type": "step",
+          "id": "scan",
+          "skill": "FullScan",
+          "params": {}
+        },
+        {
+          "type": "step",
+          "id": "assess",
+          "skill": "AssessImageQuality",
+          "params": {}
+        },
+        {
+          "type": "set",
+          "id": "upd_good",
+          "var": "good",
+          "value": "assess['quality'] >= quality_threshold"
+        },
+        {
+          "type": "set",
+          "id": "upd_n",
+          "var": "n",
+          "value": "n + 1"
+        }
+      ]
+    },
+    {
+      "type": "if",
+      "id": "verdict",
+      "cond": "good",
+      "then": [
+        {
+          "type": "step",
+          "id": "accept",
+          "skill": "LogNote",
+          "params": {
+            "note": "scan accepted"
+          }
+        }
+      ],
+      "else": [
+        {
+          "type": "step",
+          "id": "give_up",
+          "skill": "LogNote",
+          "params": {
+            "note": "scan still poor after max rescans"
+          }
+        }
+      ]
+    }
+  ],
+  "outputs": [],
+  "estimated_duration_s": 0.0,
+  "tags": [
+    "scan",
+    "quality",
+    "template"
+  ],
+  "author": "",
+  "notes": "Template: clone and remap FullScan/AssessImageQuality/LogNote to your skills.",
+  "_saved_at": "",
+  "_content_sha256": "bb05a23bf98459099cf70f469b7fa0f5dc63cf27d575349475f8fb84d14aba58"
+}

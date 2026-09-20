@@ -1,0 +1,1010 @@
+{
+ "AcquireBiasSweep": {
+  "zh": "采集偏压扫",
+  "description_zh": "在针尖当前位置采集一次偏压扫描。"
+ },
+ "AcquireLockInSweep": {
+  "zh": "采集锁相扫",
+  "description_zh": "采集一次锁相放大器的频率扫频。"
+ },
+ "AcquireOsciTrace": {
+  "zh": "采集示波波形",
+  "description_zh": "从 Nanonis 单通道示波器(Osci1T)采集一段缓冲时序波形,按硬件实时速率(V5e 约 20 kHz)采样,返回 (t0, dt, y) 数组;需加载 Osci1T 模块,默认模拟器不可用。"
+ },
+ "AcquirePLLFreqSweep": {
+  "zh": "采集 PLL 频扫",
+  "description_zh": "运行一次 PLL 频率扫频以寻找共振峰。"
+ },
+ "AcquirePSD": {
+  "zh": "采集功率谱",
+  "description_zh": "从 Nanonis 端频谱分析仪(硬件 FFT)读取功率谱密度,每个频段返回 (f0, df, psd) 数组;延迟约 0.5 ms,需要超过软件轮询的刷新率时使用(真机约 10 kHz、模拟器限 1 kHz)。"
+ },
+ "AcquireSTS": {
+  "zh": "采集 STS 谱",
+  "description_zh": "在针尖当前位置采集一条扫描隧道谱,沿用当前锁相与偏压扫频设置。"
+ },
+ "AcquireZSpectr": {
+  "zh": "采集 Z 谱",
+  "description_zh": "在针尖当前位置采集一条 Z 谱。"
+ },
+ "AdaptiveSTS_GP": {
+  "zh": "GP 自适应 STS",
+  "description_zh": "用高斯过程引导的自适应 STS 采样,挑选信息量最大的位置以最少测量次数完成采集。"
+ },
+ "AssessClusterRoundness": {
+  "zh": "团簇圆度评估",
+  "description_zh": "分割小幅 .sxm 图中最亮的凸起并计算圆度与长宽比,返回 roundness_score∈[0,1](1.0 为完美圆盘,≤0.4 为不对称)。"
+ },
+ "AssessImageQuality": {
+  "zh": "图像质量评估",
+  "description_zh": "评估扫描图像质量,给出 FFT 分数、RMS 粗糙度与噪声估计。"
+ },
+ "AssessTip_ResNet": {
+  "zh": "针尖评估(ResNet)",
+  "description_zh": "用 ResNet18 分类器评估针尖质量,无模型时回退到 FFT/噪声启发式。"
+ },
+ "AssessTip_VGG": {
+  "zh": "针尖评估(VGG)",
+  "description_zh": "用 VGG 卷积网络分类器评估针尖质量,无模型时回退到 FFT/噪声启发式。"
+ },
+ "AtomManip_SAC": {
+  "zh": "原子操纵(SAC)",
+  "description_zh": "基于 SAC+HER 强化学习的原子操纵,通过横向操纵将单个原子移动到目标位置。"
+ },
+ "AtomTrackDriftComp": {
+  "zh": "原子跟踪补漂",
+  "description_zh": "将原子跟踪测得的漂移量应用到漂移补偿中。"
+ },
+ "AtomTrackQuickCompStart": {
+  "zh": "启动原子跟踪补偿",
+  "description_zh": "通过原子跟踪启动倾斜或漂移补偿。"
+ },
+ "AtomTrackStatusGet": {
+  "zh": "读原子跟踪状态",
+  "description_zh": "读取原子跟踪某项控制(调制、控制器或漂移)的开关状态。"
+ },
+ "AutoApproach": {
+  "zh": "自动逼近",
+  "description_zh": "启动自动逼近流程,使针尖朝表面靠近。"
+ },
+ "AutoOSS_Dehalogenation": {
+  "zh": "自主脱卤合成",
+  "description_zh": "自主表面合成:通过 SAC 强化学习以针尖诱导脱卤反应。"
+ },
+ "AutonomousSurvey_Scanbot": {
+  "zh": "自主巡扫(Scanbot)",
+  "description_zh": "多区域自主巡扫:逐格扫描多个区域,自动修针并记录质量图。"
+ },
+ "BiasPulse": {
+  "zh": "偏压脉冲",
+  "description_zh": "以硬件定时产生一个偏压脉冲。"
+ },
+ "CaptureSignalBuffer": {
+  "zh": "采集信号缓冲",
+  "description_zh": "高速采集某个 Nanonis 信号的时序;用 channel='current'/'z'/'bias' 走亚毫秒 RTT 通道,或用信号索引字符串('0'..'127')走通用 Signals_ValGet 路由(受 TCP Tap 限于约 50 Hz)。"
+ },
+ "CheckLineQuality": {
+  "zh": "扫描线质量检查",
+  "description_zh": "通过对比正/反向波形评估扫描线质量,返回相似度、相位差和质量判定。"
+ },
+ "ClusterDefects_rVAE": {
+  "zh": "缺陷聚类(rVAE)",
+  "description_zh": "用旋转不变潜空间分析按类型对原子缺陷聚类,完全无监督。"
+ },
+ "ConditionTip": {
+  "zh": "自动修针",
+  "description_zh": "自动修针循环:脉冲、扫描、FFT 质量检查,反复直到达到目标质量。"
+ },
+ "ConditionTip_DQN": {
+  "zh": "修针(DQN)",
+  "description_zh": "基于 DQN 的修针,学习最优脉冲参数;无模型时回退到固定脉冲。"
+ },
+ "ConfigureAtomTrack": {
+  "zh": "配置原子跟踪",
+  "description_zh": "配置原子跟踪参数并启用/禁用各项控制。"
+ },
+ "ConfigureBiasSweep": {
+  "zh": "配置偏压扫",
+  "description_zh": "配置偏压扫描的上下限、步数和记录通道。"
+ },
+ "ConfigureLockIn": {
+  "zh": "配置锁相",
+  "description_zh": "配置锁相放大器调制的开关与参数。"
+ },
+ "ConfigureLockInDemod": {
+  "zh": "配置锁相解调",
+  "description_zh": "配置锁相解调器:信号、谐波、滤波器和相位。"
+ },
+ "ConfigureLockInSweep": {
+  "zh": "配置锁相扫",
+  "description_zh": "配置锁相频率扫频的上下限与参数。"
+ },
+ "ConfigurePLL": {
+  "zh": "配置 PLL",
+  "description_zh": "配置 PLL 中心频率、频移和控制器增益。"
+ },
+ "ConfigurePLLExcitation": {
+  "zh": "配置 PLL 激励",
+  "description_zh": "设置 PLL 激励幅值和输出范围。"
+ },
+ "ConfigureSTS": {
+  "zh": "配置 STS",
+  "description_zh": "配置 STS 的偏压扫描参数。"
+ },
+ "ConfigureSTSChannels": {
+  "zh": "配置 STS 通道",
+  "description_zh": "设置偏压谱采集时记录哪些通道。"
+ },
+ "ConfigureSTSTiming": {
+  "zh": "配置 STS 时序",
+  "description_zh": "配置偏压谱的时序参数。"
+ },
+ "ConfigureScan": {
+  "zh": "配置扫描",
+  "description_zh": "配置扫描帧:中心、尺寸、角度和采集通道;默认还会按 line_time_s 推算并设置扫描速度(线速度=宽度/线时间),传 set_scan_speed=False 可保持当前速度不变。"
+ },
+ "ConfigureZSpectr": {
+  "zh": "配置 Z 谱",
+  "description_zh": "配置 Z 谱:Z 偏移、扫描距离和点数。"
+ },
+ "ConfigureZSpectrTiming": {
+  "zh": "配置 Z 谱时序",
+  "description_zh": "配置 Z 谱的时序参数。"
+ },
+ "ContinuousImaging_Auto": {
+  "zh": "全自动成像",
+  "description_zh": "全自主成像循环:寻找区域→修针→扫描→质量检查→反复执行。"
+ },
+ "CorrectDrift_BraggPeak": {
+  "zh": "布拉格峰校漂",
+  "description_zh": "用布拉格峰分析校正晶格畸变,适用于单帧的剪切/拉伸,而非两帧刚性平移。"
+ },
+ "CorrectDrift_XCorr": {
+  "zh": "互相关测漂",
+  "description_zh": "用相位互相关估计两幅图像之间的平移漂移。"
+ },
+ "DeconvolveTip_RL": {
+  "zh": "针尖反卷积(RL)",
+  "description_zh": "用 Richardson-Lucy 反卷积去除针尖展宽,支持带阻尼的高斯点扩散函数。"
+ },
+ "DemoScanAndSTS": {
+  "zh": "演示扫描加STS",
+  "description_zh": "仅供演示:用预设参数一键完成扫描加STS,跳过所有针尖质量检查,适合已知针尖良好的现场演示。"
+ },
+ "Denoise_AE": {
+  "zh": "自编码降噪",
+  "description_zh": "用卷积自编码器对STM图像降噪,无模型权重时回退到高斯滤波。"
+ },
+ "Destripe_MorphOpen": {
+  "zh": "形态学去横纹",
+  "description_zh": "用双阈值检测加形态学开运算去除STM图像中的水平条纹。"
+ },
+ "DetectAtomJump": {
+  "zh": "检测原子跳变",
+  "description_zh": "从操纵电流波形检测原子跳变,基于CNN并带统计学回退方法。"
+ },
+ "DetectAtoms_FCN": {
+  "zh": "FCN原子检测",
+  "description_zh": "用全卷积网络检测STM图像中的原子位置,回退到局部极大值检测。"
+ },
+ "EmergencyRetract": {
+  "zh": "紧急退针",
+  "description_zh": "通过专用紧急端口执行针尖紧急回退。"
+ },
+ "EnableSafeTip": {
+  "zh": "启用SafeTip",
+  "description_zh": "启用或禁用Nanonis硬件SafeTip针尖保护。"
+ },
+ "FindEmptySpot": {
+  "zh": "寻找空白点",
+  "description_zh": "在扫描图像中找出最平坦/最空旷的区域,返回该最平滑子区域的中心坐标。"
+ },
+ "FindFlatRegion": {
+  "zh": "寻找平坦区",
+  "description_zh": "在.sxm扫描的形貌通道上滑窗,返回去平面后RMS粗糙度最低的窗口中心坐标(仪器坐标系,单位米)。"
+ },
+ "FindGoodRegion_Heuristic": {
+  "zh": "启发式找优区",
+  "description_zh": "扫描大面积区域,启发式找出最平坦的子区域并移动到其中心。"
+ },
+ "FindGoodRegion_UNet": {
+  "zh": "U-Net找优区",
+  "description_zh": "扫描后用U-Net分割出干净区域并移动到其中心。"
+ },
+ "FitFano_Kondo": {
+  "zh": "Fano近藤拟合",
+  "description_zh": "对dI/dV谱拟合Fano或Frota-Fano线型,用于近藤共振分析。"
+ },
+ "FitGap_BCS": {
+  "zh": "BCS能隙拟合",
+  "description_zh": "对dI/dV谱拟合BCS超导能隙模型,提取能隙Delta和展宽Gamma。"
+ },
+ "FullScan": {
+  "zh": "一键全扫描",
+  "description_zh": "一步完成扫描:配置区域、设速度、启动并等待结束,合并配置扫描加设速度加启动。"
+ },
+ "GenSwpAcqChsGet": {
+  "zh": "读通用扫频采集通道",
+  "description_zh": "读取通用扫频器(Generic Sweeper)记录的采集通道列表。"
+ },
+ "GenSwpPropsGet": {
+  "zh": "读通用扫频属性",
+  "description_zh": "读取通用扫频器(Generic Sweeper)的配置属性。"
+ },
+ "GenSwpStop": {
+  "zh": "停止通用扫频",
+  "description_zh": "停止当前运行的通用扫频器(Generic Sweeper)扫频。"
+ },
+ "GenSwpSwpSignalGet": {
+  "zh": "读通用扫频信号",
+  "description_zh": "读取通用扫频器(Generic Sweeper)的扫频信号名称和方向。"
+ },
+ "GetAcqPeriod": {
+  "zh": "读采集周期",
+  "description_zh": "读取TCP接收器的采集周期(秒)。"
+ },
+ "GetAutoApproachStatus": {
+  "zh": "读自动逼近状态",
+  "description_zh": "读取自动逼近流程是否正在运行。"
+ },
+ "GetBias": {
+  "zh": "读偏压",
+  "description_zh": "读取当前偏压电压。"
+ },
+ "GetBiasCalibration": {
+  "zh": "读偏压标定",
+  "description_zh": "读取偏压标定系数和偏移量。"
+ },
+ "GetCurrent": {
+  "zh": "读电流",
+  "description_zh": "读取隧道电流。"
+ },
+ "GetCurrentBEEM": {
+  "zh": "读BEEM电流",
+  "description_zh": "从电流模块读取BEEM电流值。"
+ },
+ "GetDemodHPFilter": {
+  "zh": "读解调高通滤波",
+  "description_zh": "读取锁相解调器的高通滤波器阶数和截止频率。"
+ },
+ "GetDemodHarmonic": {
+  "zh": "读解调谐波",
+  "description_zh": "读取锁相解调器的谐波次数。"
+ },
+ "GetDemodLPFilter": {
+  "zh": "读解调低通滤波",
+  "description_zh": "读取锁相解调器的低通滤波器阶数和截止频率。"
+ },
+ "GetDemodPhasReg": {
+  "zh": "读解调相位寄存器",
+  "description_zh": "读取锁相解调器的相位寄存器索引(1-8)。"
+ },
+ "GetDemodPhase": {
+  "zh": "读解调相位",
+  "description_zh": "读取锁相解调器的参考相位。"
+ },
+ "GetDemodSignal": {
+  "zh": "读解调信号",
+  "description_zh": "读取锁相解调器的被解调信号索引(0-127)。"
+ },
+ "GetDriftCompensation": {
+  "zh": "读漂移补偿",
+  "description_zh": "读取压电漂移补偿状态和速度。"
+ },
+ "GetHomeProps": {
+  "zh": "读Home位置",
+  "description_zh": "读取Z反馈的Home位置模式和数值。"
+ },
+ "GetLatestScanFile": {
+  "zh": "读最新扫描文件",
+  "description_zh": "定位最近写入的.sxm扫描文件,按会话路径、工作会话目录、旧版位置依次查找,返回路径和文件年龄。"
+ },
+ "GetLockInConfig": {
+  "zh": "读锁相配置",
+  "description_zh": "读取完整的锁相调制器和解调器配置。"
+ },
+ "GetLockInSweepLimits": {
+  "zh": "读锁相扫频上下限",
+  "description_zh": "读取锁相扫频的频率下限和上限。"
+ },
+ "GetLockInSweepProps": {
+  "zh": "读锁相扫频属性",
+  "description_zh": "读取锁相扫频属性(步数、积分时间、稳定时间)。"
+ },
+ "GetLockInSweepSignal": {
+  "zh": "读锁相扫频信号",
+  "description_zh": "读取锁相扫频的扫频信号索引。"
+ },
+ "GetMotorStepCounter": {
+  "zh": "读马达步数计数",
+  "description_zh": "读取X/Y/Z轴步数计数,可选读后清零(仅Attocube ANC150)。"
+ },
+ "GetPLLAddOnOff": {
+  "zh": "读PLL叠加开关",
+  "description_zh": "返回是否将外部信号叠加到PLL输出的开关状态。"
+ },
+ "GetPLLAmpCtrlOnOff": {
+  "zh": "读PLL幅值控制开关",
+  "description_zh": "返回PLL幅值控制器是否开启。"
+ },
+ "GetPLLDemodFilter": {
+  "zh": "读PLL解调滤波",
+  "description_zh": "返回PLL锁相之后低通滤波器的阶数。"
+ },
+ "GetPLLDemodHarmonic": {
+  "zh": "读PLL解调谐波",
+  "description_zh": "返回PLL锁相解调器中选定的谐波。"
+ },
+ "GetPLLDemodInput": {
+  "zh": "读PLL解调输入",
+  "description_zh": "读取所选PLL解调器的输入信号及其频率发生器。"
+ },
+ "GetPLLExcRange": {
+  "zh": "读PLL激励量程",
+  "description_zh": "读取PLL激励输出量程档位(0=10V,1=1V,2=0.1V,3=0.01V,4=0.001V)。"
+ },
+ "GetPLLFreqRange": {
+  "zh": "读PLL频率范围",
+  "description_zh": "读取振荡控制模块的频率范围。"
+ },
+ "GetPLLFreqSwpParams": {
+  "zh": "读PLL扫频参数",
+  "description_zh": "读取PLL频率扫描参数:点数、周期、稳定时间。"
+ },
+ "GetPLLInpCalibr": {
+  "zh": "读PLL输入标定",
+  "description_zh": "读取振荡控制模块的输入标定系数(m/V)。"
+ },
+ "GetPLLInpProps": {
+  "zh": "读PLL输入属性",
+  "description_zh": "读取PLL输入属性(差分输入、1/10分压器)。"
+ },
+ "GetPLLPhasCtrlOnOff": {
+  "zh": "读PLL相位控制开关",
+  "description_zh": "返回PLL相位控制器是开还是关。"
+ },
+ "GetPLLSignalAnlzrCh": {
+  "zh": "读PLL分析仪通道",
+  "description_zh": "读取PLL信号分析仪当前选中的通道索引。"
+ },
+ "GetPLLSignalAnlzrFFTProps": {
+  "zh": "读PLL FFT配置",
+  "description_zh": "读取PLL信号分析仪的FFT配置:窗函数、平均模式、加权模式与计数。"
+ },
+ "GetPLLSignalAnlzrTimebase": {
+  "zh": "读PLL时基",
+  "description_zh": "读取PLL信号分析仪的时基档位、刷新率及可用时基列表。"
+ },
+ "GetPLLStatus": {
+  "zh": "读PLL状态",
+  "description_zh": "读取当前PLL状态:频率、增益与激励。"
+ },
+ "GetPatternCloud": {
+  "zh": "读点云图案",
+  "description_zh": "读取为点云图案谱配置的XY点云坐标。"
+ },
+ "GetPatternProps": {
+  "zh": "读网格实验配置",
+  "description_zh": "读取网格实验配置:可用实验、选定实验、外部VI、测前延时与保存通道。"
+ },
+ "GetPiezoHVAInfo": {
+  "zh": "读HVA增益信息",
+  "description_zh": "读取AUX/X/Y/Z各轴的HVA高压放大器增益读数及其启用状态。"
+ },
+ "GetPiezoHVAStatusLED": {
+  "zh": "读HVA状态灯",
+  "description_zh": "读取HVA状态指示:过热、高压供电、高温与输出连接器状态。"
+ },
+ "GetPiezoSensitivity": {
+  "zh": "读压电灵敏度",
+  "description_zh": "读取三个轴的压电灵敏度(m/V)。"
+ },
+ "GetPiezoTilt": {
+  "zh": "读压电倾斜",
+  "description_zh": "读取压电X、Y轴的倾斜校正角度。"
+ },
+ "GetPiezoXYZLimits": {
+  "zh": "读XYZ电压限值",
+  "description_zh": "读取压电标定中的XYZ电压限值及其启用状态。"
+ },
+ "GetPointShootOnOff": {
+  "zh": "读Point&Shoot开关",
+  "description_zh": "读取Follow-Me模式下Point & Shoot是否启用。"
+ },
+ "GetPointShootProps": {
+  "zh": "读Point&Shoot配置",
+  "description_zh": "读取Point & Shoot配置:自动续测、文件名前缀、外部VI路径、测前延时。"
+ },
+ "GetRTFreq": {
+  "zh": "读RT频率",
+  "description_zh": "读取实时控制器频率(Hz)。"
+ },
+ "GetRTOversample": {
+  "zh": "读RT过采样",
+  "description_zh": "读取TCP接收器中的实时过采样值。"
+ },
+ "GetSTSAltZCtrl": {
+  "zh": "读STS备用Z反馈",
+  "description_zh": "读取偏压谱的备用Z反馈设置。"
+ },
+ "GetSTSChannels": {
+  "zh": "读STS通道",
+  "description_zh": "读取偏压谱记录的通道列表。"
+ },
+ "GetSTSDigSync": {
+  "zh": "读STS数字同步",
+  "description_zh": "读取偏压谱的数字同步模式(关/TTL/脉冲序列)。"
+ },
+ "GetSTSLimits": {
+  "zh": "读STS偏压范围",
+  "description_zh": "读取偏压谱的偏压电压范围。"
+ },
+ "GetSTSMLSLockinPerSeg": {
+  "zh": "读MLS分段锁相",
+  "description_zh": "读取MLS模式下的逐段锁相(Lock-In per Segment)标志。"
+ },
+ "GetSTSPulseSeqSync": {
+  "zh": "读STS脉冲同步",
+  "description_zh": "读取偏压谱的脉冲序列同步配置。"
+ },
+ "GetSTSSafeCond1": {
+  "zh": "读STS安全条件1",
+  "description_zh": "读取偏压谱的第1条安全条件。"
+ },
+ "GetSTSTTLSync": {
+  "zh": "读STS TTL同步",
+  "description_zh": "读取偏压谱的TTL同步配置。"
+ },
+ "GetSTSTiming": {
+  "zh": "读STS时序",
+  "description_zh": "读取偏压谱的时序参数。"
+ },
+ "GetSTSZOffRevert": {
+  "zh": "读STS Z偏移恢复",
+  "description_zh": "读取偏压谱的Z偏移恢复(Z Offset Revert)标志。"
+ },
+ "GetSafeTipProps": {
+  "zh": "读取SafeTip配置",
+  "description_zh": "读取 SafeTip 保护配置:自动恢复、自动暂停扫描和触发阈值。"
+ },
+ "GetSafeTipSignal": {
+  "zh": "读取SafeTip信号",
+  "description_zh": "读取当前 SafeTip 监测信号的数值。"
+ },
+ "GetSafeTipStatus": {
+  "zh": "读取SafeTip状态",
+  "description_zh": "读取当前 SafeTip 针尖保护的启用状态。"
+ },
+ "GetScanBuffer": {
+  "zh": "读取扫描缓冲",
+  "description_zh": "读取当前扫描缓冲设置:通道、像素数和行数。"
+ },
+ "GetScanFrame": {
+  "zh": "读取扫描帧",
+  "description_zh": "读取当前扫描帧的中心、尺寸和角度。"
+ },
+ "GetScanSpeed": {
+  "zh": "读取扫描速度",
+  "description_zh": "读取当前的扫描速度参数。"
+ },
+ "GetScanXYPosition": {
+  "zh": "读取扫描XY位置",
+  "description_zh": "读取当前扫描的 X、Y 位置。"
+ },
+ "GetSessionPath": {
+  "zh": "读取会话路径",
+  "description_zh": "读取当前 Nanonis 会话文件夹路径。"
+ },
+ "GetSetpoint": {
+  "zh": "读取设定点",
+  "description_zh": "读取当前隧道电流设定点(Z 反馈)。"
+ },
+ "GetSignalRange": {
+  "zh": "读取信号范围",
+  "description_zh": "读取某个信号(0-127)的最大和最小范围限值。"
+ },
+ "GetSignalValues": {
+  "zh": "读取信号值",
+  "description_zh": "读取所选信号的当前值(过采样),需提供信号索引列表(0-127)。"
+ },
+ "GetSignalsAddRT": {
+  "zh": "读取附加RT信号",
+  "description_zh": "读取可用附加 RT 信号列表,以及当前分配给 Internal 23 和 Internal 24 的信号名。"
+ },
+ "GetTipLift": {
+  "zh": "读取针尖抬起量",
+  "description_zh": "读取当前针尖抬起量。"
+ },
+ "GetTipSpeed": {
+  "zh": "读取针尖速度",
+  "description_zh": "读取 Follow-Me 模式下的针尖表面移动速度及自定义速度标志。"
+ },
+ "GetWithdrawRate": {
+  "zh": "读取退针速率",
+  "description_zh": "读取 Z 反馈退针速率(m/s)。"
+ },
+ "GetZCtrlGain": {
+  "zh": "读取Z反馈增益",
+  "description_zh": "读取当前 Z 反馈的 P/I 增益和时间常数。"
+ },
+ "GetZCtrlList": {
+  "zh": "读取Z反馈列表",
+  "description_zh": "读取 Z 反馈控制器列表及当前激活的控制器索引。"
+ },
+ "GetZLimitsEnabled": {
+  "zh": "读取Z限位状态",
+  "description_zh": "读取 Z 位置安全限位是否已启用。"
+ },
+ "GetZPosition": {
+  "zh": "读取Z位置",
+  "description_zh": "读取当前 Z 压电位置。"
+ },
+ "GetZSpectrChannels": {
+  "zh": "读取Z谱通道",
+  "description_zh": "读取 Z 谱记录的通道列表。"
+ },
+ "GetZSpectrDigSync": {
+  "zh": "读取Z谱数字同步",
+  "description_zh": "读取 Z 谱的数字同步模式(关闭/TTL/脉冲序列)。"
+ },
+ "GetZSpectrPulseSeqSync": {
+  "zh": "读取Z谱脉冲同步",
+  "description_zh": "读取 Z 谱的脉冲序列同步配置。"
+ },
+ "GetZSpectrRange": {
+  "zh": "读取Z谱范围",
+  "description_zh": "读取 Z 谱的范围设置。"
+ },
+ "GetZSpectrRetract": {
+  "zh": "读取Z谱自动退针",
+  "description_zh": "读取 Z 谱的自动退针配置。"
+ },
+ "GetZSpectrRetract2nd": {
+  "zh": "读取Z谱第二退针",
+  "description_zh": "读取 Z 谱的第二个自动退针条件。"
+ },
+ "GetZSpectrTTLSync": {
+  "zh": "读取Z谱TTL同步",
+  "description_zh": "读取 Z 谱的 TTL 同步配置。"
+ },
+ "GetZSpectrTiming": {
+  "zh": "读取Z谱时序",
+  "description_zh": "读取 Z 谱的时序参数。"
+ },
+ "GridSTS": {
+  "zh": "网格STS采集",
+  "description_zh": "在 NxN 网格上采集扫描隧道谱:移动到每个点并采集一条谱。"
+ },
+ "IdentifyTopology_CARP": {
+  "zh": "分子拓扑识别",
+  "description_zh": "用 Detectron2 实例分割识别分子拓扑结构,需要已训练模型。"
+ },
+ "LevelLines_Median": {
+  "zh": "逐行中值平整",
+  "description_zh": "逐行平整图像,按每行做中值减除或多项式拟合去趋势。"
+ },
+ "LoadLayout": {
+  "zh": "加载布局",
+  "description_zh": "从 .ini 文件加载 Nanonis 界面布局。"
+ },
+ "LoadPiezoHysteresisFile": {
+  "zh": "加载压电迟滞文件",
+  "description_zh": "在压电配置模块中,从 .csv 文件加载并应用两个轴的迟滞补偿值。"
+ },
+ "LockNanonisUI": {
+  "zh": "锁定Nanonis界面",
+  "description_zh": "锁定或解锁 Nanonis 界面以防止人工误操作。"
+ },
+ "MonitorCurrent": {
+  "zh": "监测电流",
+  "description_zh": "在固定时间窗内高速采样隧道电流,返回最小/最大/均值/标准差,并在 |I| 连续超阈值时置位接触检测标志。"
+ },
+ "MonitorCurrentFFT": {
+  "zh": "电流FFT监测",
+  "description_zh": "通过 TCP 轮询采集隧道电流后做软件 FFT,返回幅值或功率谱;用于硬件频谱分析仪不可用或需自定义窗时。"
+ },
+ "MotorGetPos": {
+  "zh": "读取马达位置",
+  "description_zh": "读取粗逼近马达的当前位置。"
+ },
+ "MotorMove": {
+  "zh": "马达移动",
+  "description_zh": "移动粗逼近马达:x±/y± 为横向;'z-approach' 朝样品步进(危险,需人工批准),'z-retract' 远离样品(安全)。"
+ },
+ "MotorMoveClosedLoop": {
+  "zh": "马达闭环移动",
+  "description_zh": "闭环方式将粗逼近马达移动到目标 XYZ 位置。危险:可能撞击样品;并非所有控制器支持。"
+ },
+ "MoveToXY": {
+  "zh": "移动到XY",
+  "description_zh": "用 Follow Me 模式将针尖移动到指定的 XY 位置。"
+ },
+ "OpenPatternExperiment": {
+  "zh": "打开网格实验",
+  "description_zh": "打开所选网格实验,配置或启动实验前必须先执行。"
+ },
+ "OptimizeResolution_BO": {
+  "zh": "贝叶斯分辨率优化",
+  "description_zh": "对偏压/设定点做贝叶斯优化以获得原子分辨:循环执行扫描→FFT 评分→GP 更新→建议下一组参数。"
+ },
+ "PLLFreqShiftAutoCenter": {
+  "zh": "PLL频移自动归中",
+  "description_zh": "自动归中频移:将当前频移并入中心频率,并把频移重置为零。"
+ },
+ "PLLOnOff": {
+  "zh": "PLL 开关",
+  "description_zh": "开启或关闭 PLL 输出、相位控制器和幅值控制器。"
+ },
+ "PLLPerfectPLLUpdtZTC": {
+  "zh": "PerfectPLL 更新Z时间常数",
+  "description_zh": "用 PerfectPLL 算法更新 Z 反馈时间常数。"
+ },
+ "PLLSignalAnalyzer": {
+  "zh": "PLL 信号分析仪",
+  "description_zh": "打开 PLL 信号分析仪并采集示波器/FFT 数据。"
+ },
+ "PLLSignalAnlzrTrigAuto": {
+  "zh": "PLL 分析仪自动触发",
+  "description_zh": "把 PLL 信号分析仪触发参数设为预定值。"
+ },
+ "PausePatternExperiment": {
+  "zh": "暂停网格实验",
+  "description_zh": "暂停或恢复正在运行的网格实验。"
+ },
+ "PreScanCheck": {
+  "zh": "扫描前预检",
+  "description_zh": "用单线快速预扫检查针尖质量,返回针尖就绪状态和相似度分数。"
+ },
+ "PredictSpectrumFromTopo": {
+  "zh": "形貌预测谱(ImSpec)",
+  "description_zh": "用 ImSpec 模型从形貌预测 STS 谱,识别值得重点测谱的高兴趣区。"
+ },
+ "PredictStructure_ASD": {
+  "zh": "结构预测(AttU-Net)",
+  "description_zh": "用 Attention U-Net 从 STM 图像预测分子结构,需训练好的模型。"
+ },
+ "RunGridExperiment": {
+  "zh": "运行网格谱实验",
+  "description_zh": "用 Nanonis Pattern 模块运行网格谱采集,自动处理漂移补偿和保存。"
+ },
+ "SafeRetract": {
+  "zh": "安全退针",
+  "description_zh": "退针,并回读硬件确认针尖真的退到位(Z 反馈断开且 Z 停在收回端)。结果三态:确认到位 / 读到了但没到位 / 判不了 —— 「判不了」不会被当成「已退针」。"
+ },
+ "SaveLayout": {
+  "zh": "保存布局",
+  "description_zh": "将当前 Nanonis 界面布局保存为 .ini 文件。"
+ },
+ "SaveScan": {
+  "zh": "保存扫描",
+  "description_zh": "将当前扫描数据缓冲区保存到文件。"
+ },
+ "SaveSettings": {
+  "zh": "保存/载入设置",
+  "description_zh": "将 Nanonis 设置保存到 .ini 文件,或从中载入。"
+ },
+ "ScanBackgroundDelete": {
+  "zh": "删除扫描背景",
+  "description_zh": "删除最近一次或全部已粘贴的扫描背景。"
+ },
+ "ScanBackgroundPaste": {
+  "zh": "粘贴扫描背景",
+  "description_zh": "将当前扫描数据缓冲区粘贴为背景。"
+ },
+ "SegmentRegion_UNet": {
+  "zh": "U-Net 区域分割",
+  "description_zh": "用 U-Net 把 STM 图像分割为干净/分子/缺陷区域,无模型时退回阈值分割。"
+ },
+ "SetBias": {
+  "zh": "设置偏压",
+  "description_zh": "设置偏压电压,大幅变化时可用 slew_rate_v_per_s 渐变升压。"
+ },
+ "SetBiasCalibration": {
+  "zh": "设置偏压校准",
+  "description_zh": "设置偏压校准系数与偏置,影响所有偏压测量。"
+ },
+ "SetBiasRamp": {
+  "zh": "偏压斜坡",
+  "description_zh": "将偏压从起始值按限速小步斜坡到目标值,大幅变压时用以保护样品/针尖。"
+ },
+ "SetBiasRange": {
+  "zh": "设置偏压量程",
+  "description_zh": "按索引选择偏压量程。"
+ },
+ "SetCurrentCalibration": {
+  "zh": "设置电流校准",
+  "description_zh": "为电流模块选定增益设置校准系数与偏置。"
+ },
+ "SetCurrentGain": {
+  "zh": "设置电流增益",
+  "description_zh": "设置电流放大器增益档位与滤波器。"
+ },
+ "SetDemodRTSignals": {
+  "zh": "设置解调 RT 信号",
+  "description_zh": "为锁相解调器设置实时输出信号(X/Y 或 R/相位)。"
+ },
+ "SetDemodSyncFilter": {
+  "zh": "设置解调同步滤波",
+  "description_zh": "开关锁相解调器的同步滤波器。"
+ },
+ "SetDriftCompensation": {
+  "zh": "设置漂移补偿",
+  "description_zh": "启用或关闭压电漂移补偿。"
+ },
+ "SetFolMeOversampling": {
+  "zh": "设置 Follow-Me 过采样",
+  "description_zh": "设置 Follow-Me 模式下移动时采集数据的过采样倍数。"
+ },
+ "SetHomeProps": {
+  "zh": "设置 Home 位置",
+  "description_zh": "设置 Z 反馈的 Home 位置模式与数值。"
+ },
+ "SetModHarmonic": {
+  "zh": "设置调制谐波",
+  "description_zh": "设置锁相调制器的谐波次数。"
+ },
+ "SetModPhasReg": {
+  "zh": "设置调制相位寄存器",
+  "description_zh": "将锁相调制器分配到某个相位寄存器(1-8)。"
+ },
+ "SetModSignal": {
+  "zh": "设置调制信号",
+  "description_zh": "为锁相调制器选择被调制信号(索引 0-127)。"
+ },
+ "SetMotorFreqAmp": {
+  "zh": "设置马达频率幅值",
+  "description_zh": "设置粗定位用马达的频率与幅值。"
+ },
+ "SetPLLAmpCtrlBandwidth": {
+  "zh": "设置 PLL 幅值控制带宽",
+  "description_zh": "设置幅值控制器带宽,沿用当前 Q 值与幅值/激励比(取自上次扫频)。"
+ },
+ "SetPLLAmpCtrlSetpnt": {
+  "zh": "设置 PLL 幅值设定点",
+  "description_zh": "以米为单位设置幅值控制器的设定点。"
+ },
+ "SetPLLDemodFilter": {
+  "zh": "设置 PLL 解调滤波",
+  "description_zh": "设置 PLL 锁相后低通滤波器的阶数。"
+ },
+ "SetPLLDemodInput": {
+  "zh": "设置 PLL 解调输入",
+  "description_zh": "设置所选解调器的输入与频率发生器。"
+ },
+ "SetPLLDemodPhasRef": {
+  "zh": "设置 PLL 解调相位参考",
+  "description_zh": "设置所选解调器的相位参考。"
+ },
+ "SetPLLFreqExcOverwrite": {
+  "zh": "设置 PLL 频移/激励覆盖",
+  "description_zh": "设置覆盖频移和/或激励的信号,仅在对应控制器未激活时生效,用 -2 表示不更改。"
+ },
+ "SetPLLFreqRange": {
+  "zh": "设置 PLL 频率范围",
+  "description_zh": "设置振荡控制模块的频率范围。"
+ },
+ "SetPLLInpCalibr": {
+  "zh": "设置 PLL 输入校准",
+  "description_zh": "设置振荡控制模块的输入校准(m/V)。"
+ },
+ "SetPLLInpProps": {
+  "zh": "设置 PLL 输入属性",
+  "description_zh": "设置 PLL 的输入属性(差分输入、1/10 分压器)。"
+ },
+ "SetPLLInpRange": {
+  "zh": "设置 PLL 输入量程",
+  "description_zh": "设置振荡控制模块的输入量程(m)。"
+ },
+ "SetPLLPhasCtrlBandwidth": {
+  "zh": "设置 PLL 相位控制带宽",
+  "description_zh": "设置相位控制器带宽,沿用当前 Q 值(取自上次扫频)。"
+ },
+ "SetPLLSignalAnlzrTrig": {
+  "zh": "设置 PLL 分析仪触发",
+  "description_zh": "设置 PLL 信号分析仪的触发配置。"
+ },
+ "SetPatternCloud": {
+  "zh": "设置点云图案",
+  "description_zh": "为点云图案谱设置一组 XY 点云。"
+ },
+ "SetPatternLine": {
+  "zh": "设置线图案",
+  "description_zh": "设置线图案参数:点数与两个端点。"
+ },
+ "SetPiezoHysteresisOnOff": {
+  "zh": "开关压电迟滞补偿",
+  "description_zh": "在压电配置中启用或关闭迟滞补偿。"
+ },
+ "SetPiezoHysteresisValues": {
+  "zh": "设置压电迟滞值",
+  "description_zh": "在压电校准模块中设置并应用快/慢轴的迟滞补偿点。"
+ },
+ "SetPiezoRange": {
+  "zh": "设置压电量程",
+  "description_zh": "设置三轴压电量程(m),改量程会同时改变灵敏度(HV 增益不变)。"
+ },
+ "SetPiezoSensitivity": {
+  "zh": "设置压电灵敏度",
+  "description_zh": "设置三轴压电灵敏度(m/V),改灵敏度会同时改变量程(HV 增益不变)。"
+ },
+ "SetPiezoTilt": {
+  "zh": "设置压电倾斜",
+  "description_zh": "设置压电 X、Y 轴的倾斜校正角度。"
+ },
+ "SetPointShootExperiment": {
+  "zh": "设置点射实验",
+  "description_zh": "在 Follow-Me 模式下选择 Point & Shoot 要运行的实验。"
+ },
+ "SetPointShootOnOff": {
+  "zh": "开关点射",
+  "description_zh": "在 Follow-Me 模式下启用或关闭 Point & Shoot。"
+ },
+ "SetRTFreq": {
+  "zh": "设置 RT 频率",
+  "description_zh": "设置实时控制器频率(Hz)。"
+ },
+ "SetRTOversample": {
+  "zh": "设置 RT 过采样",
+  "description_zh": "设置 TCP 接收器中的实时过采样值。"
+ },
+ "SetSTSAdvancedProps": {
+  "zh": "设置偏压谱高级属性",
+  "description_zh": "设置偏压谱(STS)的高级属性参数。"
+ },
+ "SetSTSChannels": {
+  "zh": "设置偏压谱通道",
+  "description_zh": "设置偏压谱采集时记录的通道。"
+ },
+ "SetSTSMLSMode": {
+  "zh": "设置偏压谱扫描模式",
+  "description_zh": "设置偏压谱的扫描模式:线性或多段折线(MLS)。"
+ },
+ "SetSTSMLSVals": {
+  "zh": "设置偏压谱 MLS 段",
+  "description_zh": "为偏压谱 MLS 模式设置多段折线的分段配置。"
+ },
+ "SetSTSSafeCond1": {
+  "zh": "设置偏压谱安全条件1",
+  "description_zh": "设置偏压谱的第 1 个安全条件。"
+ },
+ "SetSTSSafeCond2": {
+  "zh": "设置偏压谱安全条件2",
+  "description_zh": "设置偏压谱的第 2 个安全条件。"
+ },
+ "SetScanSpeed": {
+  "zh": "设置扫描速度",
+  "description_zh": "设置扫描速度:正/反向速度或每行扫描时间。"
+ },
+ "SetSessionPath": {
+  "zh": "设置会话路径",
+  "description_zh": "设置 Nanonis 会话文件夹路径。"
+ },
+ "SetSetpoint": {
+  "zh": "设置设定点",
+  "description_zh": "设置 Z 反馈的隧道电流设定点。"
+ },
+ "SetSwitchOffDelay": {
+  "zh": "设置关断延时",
+  "description_zh": "设置 Z 反馈的关断延时(秒)。"
+ },
+ "SetTipLift": {
+  "zh": "设置针尖抬起量",
+  "description_zh": "设置 Z 反馈关闭时针尖回缩的抬起量。"
+ },
+ "SetTipSpeed": {
+  "zh": "设置针尖移动速度",
+  "description_zh": "设置 Follow-Me(XY 定位)模式下的针尖移动速度。"
+ },
+ "SetZCtrlGain": {
+  "zh": "设置 Z 反馈增益",
+  "description_zh": "设置 Z 反馈的 P/I 增益与时间常数。"
+ },
+ "SetZLimitsEnabled": {
+  "zh": "启用 Z 限位",
+  "description_zh": "启用或禁用 Z 位置安全限位。"
+ },
+ "SetZPosition": {
+  "zh": "设置 Z 位置",
+  "description_zh": "直接设置 Z 压电位置(须先关闭 Z 反馈)。"
+ },
+ "SetZSpectrAdvProps": {
+  "zh": "设置 Z 谱高级属性",
+  "description_zh": "设置 Z 谱(Z Spectroscopy)的高级属性参数。"
+ },
+ "SetZSpectrChannels": {
+  "zh": "设置 Z 谱通道",
+  "description_zh": "设置 Z 谱采集时记录的通道。"
+ },
+ "SetZSpectrRange": {
+  "zh": "设置 Z 谱范围",
+  "description_zh": "设置 Z 谱的扫描范围。"
+ },
+ "SetZSpectrRetract": {
+  "zh": "设置 Z 谱回缩条件",
+  "description_zh": "设置 Z 谱的自动回缩条件。"
+ },
+ "SetZSpectrRetractDelay": {
+  "zh": "设置 Z 谱回缩延时",
+  "description_zh": "设置 Z 谱正反向扫描之间的回缩延时(秒)。"
+ },
+ "ShapeTipOnSurface": {
+  "zh": "表面修针",
+  "description_zh": "在样品表面端到端修针:于宽幅扫描中找平整区,逐步下压针尖并监测电流判接触,再扫描凹坑并评估圆度,坑形不对称则换新点重试,最后恢复反馈与扫描帧。"
+ },
+ "StartScan": {
+  "zh": "启动扫描",
+  "description_zh": "以当前参数启动一次扫描。"
+ },
+ "StopFolMe": {
+  "zh": "停止 Follow-Me",
+  "description_zh": "停止 Follow-Me 模式下的针尖移动。"
+ },
+ "StopMotor": {
+  "zh": "急停马达",
+  "description_zh": "紧急停止所有马达运动。"
+ },
+ "StopPLLFreqSwp": {
+  "zh": "停止 PLL 扫频",
+  "description_zh": "停止 PLL 频率扫描模块中的扫频。"
+ },
+ "StopSTS": {
+  "zh": "停止偏压谱",
+  "description_zh": "停止当前的偏压谱(STS)测量。"
+ },
+ "StopScan": {
+  "zh": "停止扫描",
+  "description_zh": "停止当前正在进行的扫描。"
+ },
+ "StopZSpectr": {
+  "zh": "停止 Z 谱",
+  "description_zh": "停止当前的 Z 谱测量。"
+ },
+ "SubtractPlane_RANSAC": {
+  "zh": "RANSAC 平面扣除",
+  "description_zh": "用 RANSAC 鲁棒平面拟合扣除 STM 图像背景,拟合时剔除分子、台阶等离群点。"
+ },
+ "SubtractPoly2D": {
+  "zh": "二维多项式扣除",
+  "description_zh": "从 STM 图像扣除二维多项式背景,适用于平面扣除不足的弯曲衬底。"
+ },
+ "SurveySurface_TileScan": {
+  "zh": "拼接巡扫",
+  "description_zh": "以 NxN 拼接帧巡扫一块方形表面区域获取全局概览,每帧生成一个 .sxm 文件;在放大细节前使用,需针尖已逼近且稳定,可选对各帧评质并推荐最佳帧。"
+ },
+ "TipPulse": {
+  "zh": "针尖脉冲",
+  "description_zh": "施加偏压脉冲用于修针:先快照偏压,施加脉冲,再恢复原偏压。"
+ },
+ "TipShape": {
+  "zh": "针尖整形",
+  "description_zh": "运行硬件针尖整形流程(受控修针)。"
+ },
+ "TipShapeWithReadback": {
+  "zh": "针尖整形+回读",
+  "description_zh": "运行硬件针尖整形,并在过程中同步采集电流与 Z,捕捉针尖顶点突变时两通道的跳变(用 wait=0 使轮询与动作重叠)。"
+ },
+ "TrackDrift_ReferenceScan": {
+  "zh": "参考帧跟踪漂移",
+  "description_zh": "通过与参考帧对比跟踪样品漂移,并按测得漂移补偿扫描帧位置。"
+ },
+ "UnlockNanonisUI": {
+  "zh": "解锁 Nanonis 界面",
+  "description_zh": "解锁 Nanonis 界面(关闭锁定弹窗)。"
+ },
+ "UnmixSpectra": {
+  "zh": "谱分解",
+  "description_zh": "将三维谱数据立方(x,y,E)分解为 N 个分量谱及其空间丰度图。"
+ },
+ "WaitScanComplete": {
+  "zh": "等待扫描完成",
+  "description_zh": "等待当前扫描结束或超时。"
+ },
+ "WithdrawTip": {
+  "zh": "退针",
+  "description_zh": "将针尖从表面完全退出。"
+ },
+ "ZControllerOnOff": {
+  "zh": "Z 反馈开关",
+  "description_zh": "启用或禁用 Z 反馈(反馈环路)。"
+ }
+}

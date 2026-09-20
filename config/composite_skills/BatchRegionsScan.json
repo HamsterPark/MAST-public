@@ -1,0 +1,186 @@
+{
+  "name": "BatchRegionsScan",
+  "description": "按 JSON 区域清单逐个扫（每区可不同角度），部分成功。",
+  "version": 46,
+  "safety_level": "confirm",
+  "params": [
+    {
+      "name": "regions",
+      "type": "string",
+      "default": "[]",
+      "description": "区域清单 JSON 数组",
+      "required": true
+    },
+    {
+      "name": "channels",
+      "type": "string",
+      "default": "Z,Current",
+      "description": "采集通道",
+      "required": false
+    },
+    {
+      "name": "line_time_s",
+      "type": "number",
+      "default": 0.1,
+      "description": "每行时间 (s)",
+      "required": false
+    },
+    {
+      "name": "wait_timeout_s",
+      "type": "number",
+      "default": 180.0,
+      "description": "每区等扫超时 (s)",
+      "required": false
+    },
+    {
+      "name": "save_each",
+      "type": "bool",
+      "default": true,
+      "description": "每区存盘",
+      "required": false
+    }
+  ],
+  "nodes": [
+    {
+      "type": "step",
+      "id": "parse",
+      "skill": "ParseRegions",
+      "params": {
+        "regions": {
+          "$expr": "regions"
+        }
+      }
+    },
+    {
+      "type": "set",
+      "id": "s0",
+      "var": "scanned",
+      "value": "0"
+    },
+    {
+      "type": "loop",
+      "id": "regs",
+      "mode": "foreach",
+      "var": "r",
+      "iterable": "parse['regions']",
+      "body": [
+        {
+          "type": "step",
+          "id": "configure",
+          "skill": "ConfigureScan",
+          "optional": true,
+          "params": {
+            "center_x_m": {
+              "$expr": "r['center_x_m']"
+            },
+            "center_y_m": {
+              "$expr": "r['center_y_m']"
+            },
+            "width_m": {
+              "$expr": "r['width_m']"
+            },
+            "height_m": {
+              "$expr": "r['height_m']"
+            },
+            "angle_deg": {
+              "$expr": "r['angle_deg']"
+            },
+            "channels": {
+              "$expr": "channels"
+            }
+          }
+        },
+        {
+          "type": "step",
+          "id": "speed",
+          "skill": "SetScanSpeed",
+          "optional": true,
+          "params": {
+            "fwd_speed": {
+              "$expr": "max(r['width_m'], r['height_m']) / line_time_s"
+            },
+            "bwd_speed": {
+              "$expr": "max(r['width_m'], r['height_m']) / line_time_s"
+            },
+            "fwd_line_time": {
+              "$expr": "line_time_s"
+            },
+            "bwd_line_time": {
+              "$expr": "line_time_s"
+            },
+            "keep_const": 0
+          }
+        },
+        {
+          "type": "step",
+          "id": "start",
+          "skill": "StartScan",
+          "optional": true,
+          "params": {}
+        },
+        {
+          "type": "step",
+          "id": "wait",
+          "skill": "WaitScanComplete",
+          "optional": true,
+          "params": {
+            "timeout_ms": {
+              "$expr": "wait_timeout_s * 1000"
+            }
+          }
+        },
+        {
+          "type": "if",
+          "id": "reg_ok",
+          "cond": "'_failed' not in wait",
+          "then": [
+            {
+              "type": "set",
+              "id": "inc",
+              "var": "scanned",
+              "value": "scanned + 1"
+            }
+          ],
+          "else": []
+        },
+        {
+          "type": "if",
+          "id": "do_save",
+          "cond": "save_each",
+          "then": [
+            {
+              "type": "step",
+              "id": "save",
+              "skill": "SaveScan",
+              "optional": true,
+              "params": {}
+            }
+          ],
+          "else": []
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "name": "scanned",
+      "expr": "scanned"
+    },
+    {
+      "name": "region_count",
+      "expr": "parse['count']"
+    }
+  ],
+  "success_when": "scanned >= 1",
+  "fail_message": "'no region scanned'",
+  "estimated_duration_s": 0.0,
+  "tags": [
+    "scan",
+    "batch",
+    "builtin"
+  ],
+  "author": "",
+  "notes": "Restored from v1. Declarative twin of batch_regions_scan.py:BatchRegionsScan (P5).",
+  "_saved_at": "",
+  "_content_sha256": "8f789c39c4704f70edcc82d864f55e63fa6f5798c0db980904b9f8ee99b5a312"
+}
