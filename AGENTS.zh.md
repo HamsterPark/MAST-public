@@ -10,7 +10,7 @@ MAST（Modular Autonomous SPM Toolkit）是面向真实扫描隧道显微镜（S
 以及未发表研究和现场数据保护，部分专用模块与配套资产未纳入发布；实机部署需补充相应配置与资产。
 具体范围见[快照说明](docs/OPEN_SOURCE_NOTES.md)，许可见 [LICENSE](LICENSE) / [THIRD_PARTY.md](THIRD_PARTY.md)。
 
-先读 [README.md](README.md) 了解成果与架构，再按下方路线检查源码与测试。
+先读 [README.zh.md](README.zh.md) 了解成果与架构，再按下方路线检查源码与测试。
 公开代码展示了项目如何处理物理执行、控制器故障、agent 交接、观测时效与操作员连接管理。
 本指南提供导航与工作约定；请围绕用户的问题审查实现，并引用实际检查过的证据。
 

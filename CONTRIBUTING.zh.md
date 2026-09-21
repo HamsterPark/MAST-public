@@ -31,7 +31,7 @@
 | 官方 | `MASTv2/mast/skills/builtins/`、`config/composite_skills/` | 社区技能转入官方树前，需经过维护者真机验证。 |
 
 此表说明投稿流程，不代表现有 builtin 或复合技能中的每项功能都已通过真机验证。
-已公开的验证边界见 [README.md](README.md)，本次快照的检查记录见[快照说明](docs/OPEN_SOURCE_NOTES.md)。
+已公开的验证边界见 [README.zh.md](README.zh.md)，本次快照的检查记录见[快照说明](docs/OPEN_SOURCE_NOTES.md)。
 
 目录约定、manifest 格式、每个检查代号的含义、怎么在本地装一个社区技能，见
 [`contrib/README.zh.md`](contrib/README.zh.md)。

@@ -1,127 +1,275 @@
 # MAST — Modular Autonomous SPM Toolkit
 
-**从 AI 推理到真实仪器操作的全栈实验系统。**
+**English** · [中文](README.zh.md)
 
-MAST 面向扫描隧道显微镜（STM），将多智能体协作、仪器控制、视觉观测、数据处理与操作员界面连接起来，
-把 AI 的实验意图落实为带有执行约束、状态反馈和人工介入入口的物理操作。
+**Enabling AI to observe, reason, act, and test the consequences in real experiments at the atomic scale.**
 
-MAST is a full-stack multi-agent system for real STM experiments, connecting experiment planning,
-instrument control, perception, data analysis and an operator interface.
+MAST connects multi-agent collaboration, instrument control, visual observation, data analysis, and an operator interface
+for scanning tunneling microscopy (STM). It turns experimental intent into physical actions with execution constraints,
+state feedback, and opportunities for operator intervention.
+Its central question is how AI can keep acquiring trustworthy data and advancing an experiment when the instrument's state is only partly visible and actions can change the system being measured.
 
-![Python 3.13](https://img.shields.io/badge/python-3.13-blue) ![TypeScript](https://img.shields.io/badge/frontend-React%2018%20%2B%20TypeScript-blue) ![License: MIT](https://img.shields.io/badge/license-MIT-green) ![snapshot](https://img.shields.io/badge/snapshot-2026-09-21-lightgrey)
-
-## 已有成果
-
-**上一版本中，外部 AI agent 已通过 MAST 控制真实 STM 运行五天五夜。**
-这段跨昼夜的运行经历，将 agent 决策、仪器执行与状态反馈带入了实际实验流程。
-MAST 6.5.0 在此基础上新增 `/api/ext/v1` 与配套 MCP 集成：新接口已完成软件测试，真机验证尚待完成。
+![Python 3.13](https://img.shields.io/badge/python-3.13-blue) ![TypeScript](https://img.shields.io/badge/frontend-React%2018%20%2B%20TypeScript-blue) ![MIT license](https://img.shields.io/badge/license-MIT-green) ![Snapshot date](https://img.shields.io/badge/snapshot-2026-09-21-lightgrey)
 
 **In the previous version, an external AI agent operated a real STM through MAST over five days and five nights.**
-Version 6.5.0 builds on that experience with a new external API and MCP integration,
-which have undergone software testing and await hardware validation.
+This is a deployment experience reported by the maintainer. The `/api/ext/v1` interface and accompanying MCP integration
+introduced in MAST 6.5.0 have passed software tests; hardware validation remains pending.
+The sections below distinguish the scientific challenges of STM, MAST's engineering, and the scope of each validation claim.
 
-![Tip conditioning on Au through MAST: eight STM frames on a relative timeline](docs/assets/au-tip-repair-overview.png)
+## What is STM?
 
-*外部 agent 通过上一版本 MAST 控制路径在 Au 上修针的真实 STM 图像序列。时间相对首张展示帧；#0652 采用逐行一阶调平。*
+A scanning tunneling microscope uses **quantum tunneling** to study surfaces. A conductive tip is brought close to a sample
+that supports a measurable tunneling channel. An applied bias drives a tiny current through the barrier between tip and sample.
+As the tip scans point by point, a feedback system typically adjusts its height to maintain a set current,
+producing images with atomic-scale resolution. Binnig and colleagues reported early surface studies using this method in 1982.
+See the [original paper](https://doi.org/10.1103/PhysRevLett.49.57) and, for an introduction,
+[Wikipedia: Scanning tunneling microscope](https://en.wikipedia.org/wiki/Scanning_tunneling_microscope).
 
-本次公开源码基线 `9884ff5` 已于 **2026-09-21** 在 Windows / Python 3.13 环境完成无需仪器的软件验证：
+STM images contain information about both surface geometry and electronic structure. Varying the bias and recording current
+or differential conductance enables scanning tunneling spectroscopy (STS), which probes local electronic states at selected positions.
+Interpreting differential conductance as the sample's local density of states requires assumptions about the tip, tunneling barrier,
+temperature, and measurement conditions. A spectrum cannot automatically be treated as an intrinsic material property.
+See the [Tersoff–Hamann theory](https://doi.org/10.1103/PhysRevB.31.805) for the theoretical basis.
 
-| 验证项目 | 已记录结果 |
+### The instrument conditions behind atomic-scale precision
+
+Low-temperature, ultrahigh-vacuum STM for low-energy electronic states and quantum materials combines several extreme conditions
+at a very small tunneling junction. The scales below illustrate the operating principles; actual conditions depend on the sample,
+measurement objectives, and instrument calibration.
+
+| Characteristic | Why it matters |
 |---|---|
-| 后端测试 | **14,356 通过，0 失败**；46 跳过、2 个预期失败 |
-| 前端单元测试 | **985 / 985 通过** |
-| 前端构建与类型检查 | 通过 |
-| API 契约 | 302 条 OpenAPI 路径、577 个 schema；前端类型已同步 |
-| 发布检查 | Python 语法、import 闭包、公开内容清理检查通过 |
+| **An extremely narrow tunneling junction** | Tip and sample are typically separated by only a few ångströms, or fractions of a nanometer. Current depends approximately exponentially on this distance: minute displacements provide high sensitivity but can also change the signal substantially. |
+| **Very low currents** | Common imaging currents range from picoamperes to nanoamperes, approximately $10^{-12}$ to $10^{-9}$ A. Preamplifiers, grounding, cabling, and bandwidth jointly determine whether these weak signals can be read reliably. |
+| **Low and ultralow temperatures** | Kelvin and millikelvin conditions reduce thermal broadening and support studies of low-energy states. Cooling, thermal equilibration, and control of electron temperature are themselves instrument engineering challenges. |
+| **Ultrahigh vacuum (UHV)** | UHV supports clean surfaces, tip preparation, and long measurements by reducing contamination from residual-gas adsorption. It does not guarantee that the tip remains unchanged during operation. |
+| **Low mechanical and electrical noise** | Vibration isolation, acoustic isolation, electromagnetic shielding, and filtering suppress junction motion and electrical disturbances. Radio-frequency noise can also affect electron temperature and spectroscopic resolution. |
+| **High stability over long periods** | Spectroscopic maps and repeated measurements require comparable tip conditions and spatial registration over hours or longer. Thermal drift, piezoelectric creep, and tip changes can break that correspondence. |
 
-测试使用替身与合成数据；真机经历与软件验证分别记录。环境、命令、跳过项及复现前提见[验证记录](docs/OPEN_SOURCE_NOTES.md#四import-闭包与测试)。
+For typical imaging currents, see the [STM overview in this review of single-molecule measurements](https://doi.org/10.1021/nn103298x).
+Published instruments demonstrate these requirements in practice. Song and colleagues achieved subpicometer junction stability
+at a base temperature of 10 mK. Schwenk and colleagues discuss thermalization, radio-frequency filtering, and microelectronvolt energy
+resolution in ultralow-temperature spectroscopy. See the [10 mK scanning probe facility](https://www.nist.gov/publications/10-mk-scanning-probe-microscopy-facility)
+and [instrument design for high energy resolution](https://doi.org/10.1063/5.0005320).
+These are specifications of the instruments in the cited papers, not performance claims for MAST.
+STM can also operate at room temperature, in air, or in liquids; low temperature and UHV are not requirements for every STM.
 
-## 核心工程能力
+## Why is STM one of the “crown jewels” of AI for experimental science?
 
-MAST 的工程工作横跨 AI 编排、物理仪器、科学数据与 Web 应用。公开源码保留了以下主线：
+**We see autonomous STM as one of the most demanding and representative challenges in AI for experimental science.**
+It brings atomic-scale perception, physical reasoning, precision control, fault diagnosis, and experimental design into a single loop.
+“Crown jewel” expresses a judgment about its research value, rather than a universal ranking of scientific instruments by difficulty.
 
-| 工程问题 | 已实现的机制 | 代表入口 |
+### A partly observable physical system that actions can change
+
+The crucial hidden variables are the **atomic configuration, chemical state, and electronic states of the tip apex**.
+During routine STM operation, the directly available images, spectra, and currents reflect the combined tip–sample response,
+not the true state of the apex itself. Inferring that state from these signals generally has no unique solution:
+different tip–sample combinations can produce similar observations.
+Judgments about tip condition therefore remain **evidence-constrained but uncertain guesses**. Additional observations can test
+or rule out some explanations without uniquely recovering the actual microscopic configuration.
+
+This unknown state also changes with operation: scanning, pulses, or contact can rearrange the apex or transfer material to it,
+altering image contrast and spectroscopic response. An autonomous system must retain uncertainty about the tip state
+and judge the suitability of its next action under that uncertainty.
+Research on atom manipulation in real STM experiments has explicitly identified spontaneous tip changes, unknown manipulation
+parameters, and the difficulty of accurately modeling tip–atom interactions. See [Chen et al., 2022](https://www.nature.com/articles/s41467-022-35149-w).
+
+For autonomous experiments, these physical properties create five connected challenges:
+
+| System property | What it means in STM | What an autonomous agent needs to do |
 |---|---|---|
-| 将模型动作接入物理仪器 | 技能参数范围与 SI 数量级校验、执行模式与安全检查、仪器占用权、中止处理；原子技能与声明式复合流程共享执行约束 | [执行上下文](MASTv2/mast/core/execution_context.py)、[安全检查](MASTv2/mast/core/safety.py) |
-| 在多个 agent 之间延续实验任务 | 编排器与七个域 agent 分工；以类型化产物引用、有界摘要和状态归并传递工作成果 | [状态契约](MASTv2/mast/agents/state.py)、[产物通道](MASTv2/mast/agents/_shared/artifact_channel.py) |
-| 将持续观测供给较慢的推理 | 视觉、监控与缓冲层组织仪器观测，向 agent 暴露观测年龄与扫描推进状态 | [缓冲服务](MASTv2/mast/buffer/service.py)、[观测工具](MASTv2/mast/agents/_shared/buffer_tools.py) |
-| 处理真实系统中的故障 | 控制器协议的分段读取、连接中断与超时处理；WebSocket 重连与轮询回退；SSE 区分完成、断流与静默超时 | [协议补丁](MASTv2/mast/core/nanonis_patch.py)、[前端流式通信](frontend/src/lib/) |
-| 将能力开放给外部 agent | 外部 API、MCP 集成和技能投稿接口；作业请求去重、内容冲突检查与重启后的状态处理 | [外部作业](MASTv2/mast/api/ext/jobs.py)、[Claude Code 集成](integrations/claude-code/) |
+| **Partial observability** | The true microscopic tip state is not directly observable, and images and spectra generally cannot identify it uniquely. Multiple tip–sample states can produce similar observations. | Maintain several evidence-constrained hypotheses and continually test their plausibility; treat tip condition as an uncertain judgment, not an established fact. |
+| **Strong nonlinearity** | Current varies exponentially with distance. Voltage, local electronic states, the barrier, and feedback jointly shape the response. A small parameter change can cross the boundary between imaging, manipulation, and contact. | Choose constrained actions using the current state and calibration; do not treat one successful parameter combination as a universal recipe. |
+| **Nonstationarity** | Thermal drift and piezoelectric creep change actual position over time, while piezoelectric hysteresis makes the voltage–displacement relationship depend on the preceding drive trajectory. Adsorption and tip reconstruction also alter measurement response. Identical control commands cannot be assumed to retain a fixed correspondence to position and response. | Continually check position, drift, and measurement response; relocate, reassess, and adjust the strategy when needed. Do not rely indefinitely on one calibration or successful outcome. |
+| **History dependence** | Earlier tip conditioning, pulses, contacts, adsorption, and material transfer leave different tip and surface states. Later experimental outcomes therefore depend on what the system has experienced. | Record actions, their order, timing, and outcomes; the same present parameter settings do not guarantee an identical physical state. |
+| **Actions change the system** | Tip conditioning, atom manipulation, and local excitation deliberately alter the tip or surface. Measurement itself can disturb fragile objects. Tip rearrangements and atom transfer may be irreversible; restoring the parameters does not restore the previous state. | Weigh both the information an action can provide and its physical consequences, recheck measurement conditions afterward, and retain abort and operator-intervention paths. |
 
-[中文审阅指南](AGENTS.zh.md) / [English review guide](AGENTS.md) 将这些机制逐项连接到源码与回归测试，
-适合人工阅读，也适合 Codex 等代码助手从实现出发检查项目。
+These properties overlap. Piezoelectric hysteresis also reflects history dependence; it is grouped here with creep and thermal drift
+under nonstationarity to emphasize the difficulty of maintaining a stable correspondence between control inputs and actual coordinates or responses.
 
-## 系统架构
+A simple approximation for distance sensitivity is $I \propto e^{-2\kappa z}$, where $z$ is the tip–sample separation and $\kappa$
+is related to the effective tunneling barrier. This explains STM's high sensitivity, but does not fully describe an operating instrument:
+real observations also depend on tip electronic states, the sample, bias, temperature, drift, and noise.
+See [Tersoff–Hamann](https://doi.org/10.1103/PhysRevB.31.805) for the theory and
+[research on scanner hysteresis and creep](https://doi.org/10.1063/1.4974271) for nonideal scanner responses.
 
-```text
-实验意图 / 操作员
-        │
-        ▼
-多 agent 协作 ── 类型化产物与状态交接
-        │
-        ▼
-instrument_control ── 技能与复合流程 ── 执行校验与安全检查 ── Nanonis / STM
-        ▲                                                          │
-        │                                                          ▼
-观测上下文 ◀──────── 缓冲与状态层 ◀─────────────── 视觉 / 仪器监控
-        │
-        └──────────────── API / React 操作员界面
-```
+We therefore view autonomous STM as a combination of **decision-making under partial observability, online system identification,
+active learning, and precision control**. This is a modeling perspective: an agent uses observations and action history to form
+tentative judgments about possible states and their plausibility, while choosing actions that both advance the experiment and test those judgments.
+Such state estimation retains uncertainty; it does not mean reconstructing the true tip structure.
+It is not a claim that a complete, accurate STM state model already exists, or that MAST implements every autonomous capability.
 
-分层设计将不同时间尺度的工作接起来：控制器承担底层闭环，视觉与监控产生观测，
-缓冲层整理状态，agent 完成较慢的推理、任务拆分与交接，操作员通过界面观察与介入执行。
-域 agent 中由 `instrument_control` 调用仪器技能；手动操作与外部接口的执行入口另见审阅指南。
+### The challenge is diagnosis, recovery, and scientific judgment
 
-`core`、`skills`、七个域 agent、内部 API、视觉与监控、数据 I/O、缓冲、
-签名增量更新及网络模块均已有在维护者仪器上的功能运行经历，具体经验对应当时使用的功能与版本。
-长时间规划 `conduct/`、自研运行时 `agentruntime/`、`goals/`、技能工坊与市场及 qPlus 路径仍处于实验阶段，
-尚待真机验证。自研运行时与 LangGraph 路径共存，`engine_v2_*` 开关默认关闭。
+An image that looks good does not establish that the tip is suitable for the next spectroscopic measurement.
+When a spectrum is anomalous, an experimenter must distinguish material electronic states from effects of tip states, charging,
+tip-induced band bending, feedback, and noise. Different explanations may call for different controls: changing measurement conditions,
+comparing scan directions, revisiting a reference area, or relocating and repeating a measurement after tip conditioning.
+For example, studies of semiconductor surfaces have directly measured band bending caused by the tip's electric field;
+see this [study of electrostatic tip–sample interactions](https://doi.org/10.1103/PhysRevLett.70.2471).
+These are diagnostic approaches; any actual action depends on sample conditions, instrument constraints, and operating authorization.
 
-进一步阅读：[agent 拓扑](docs/v2/agent-topology.md)、[技能目录](docs/v2/skill-catalog.md)、[模型服务适配](docs/api_providers/)。
+The hard part is connecting these steps into reliable causal reasoning: detect an anomaly, propose possible causes, select observations
+that distinguish them, check the outcome, and decide whether to continue, recover, repeat the measurement, or involve the operator.
+**Autonomous scientific judgment must establish trust in the measurement conditions before interpreting the physics.**
 
-## 公开源码规模
+Much operating expertise is tacit. An experienced experimentalist knows when to wait, which streaks merit concern, and what to verify
+after tip conditioning. These judgments depend on context and must be translated into executable, verifiable workflows.
+A general-purpose large language model may know STM principles, yet that knowledge alone does not provide the current tip state,
+calibration, operating experience, or executable interface of a particular instrument.
+Reviews of AI for scanning probe microscopy likewise identify reliance on expert experience, autonomous tip conditioning,
+manipulation, and closed-loop experiments as important challenges. See [Li et al., 2026](https://doi.org/10.1016/j.asi.2026.100003).
 
-| 量 | 值 |
+### From individual automated tasks to closed-loop scientific experiments
+
+Research has demonstrated concrete progress. In 2022, deep reinforcement learning enabled Ag atom manipulation in a real STM,
+and path planning supported autonomous atom assembly. In 2025, a room-temperature STM study integrated tip and surface assessment,
+atom recognition, area selection, drift correction, tip conditioning, and atom manipulation.
+These results apply to specific materials and tasks; they do not establish general autonomous research on unknown samples.
+See [Chen et al., 2022](https://www.nature.com/articles/s41467-022-35149-w) and
+[Okuyama et al., 2025](https://doi.org/10.1021/acs.nanolett.5c04982).
+
+A 2026 review of self-driving scanning probe microscopy discusses the progression from automated acquisition, real-time analysis,
+and active learning toward discovery and manipulation. MAST aims to provide an inspectable engineering foundation for this direction,
+connecting experimental knowledge, instrument interfaces, execution constraints, observations, and work records.
+See [Narasimha et al., 2026](https://doi.org/10.1021/acs.accounts.6c00273).
+
+The long-term goal is a scientific loop: **observe → propose a hypothesis → design controls → execute within constraints → check changes
+to the instrument and sample → update the evidence → choose the next experiment**.
+Ruling out artifacts, restoring trustworthy measurements, and testing physical hypotheses provide a stronger test of autonomy
+than completing a single scan. STM's local environment and atomic-scale feedback make it a promising platform for evaluating
+experimental intelligence. This is the project's research vision, not an already completed general-purpose “AI scientist.”
+
+## MAST's results and validation
+
+**In the previous version, an external AI agent operated a real STM through MAST over five days and five nights.**
+This operation across multiple days and nights brought agent decisions, instrument execution, and state feedback into a real experimental workflow.
+The deployment used the previous version's control path; experimental data and complete logs are not included in this source release.
+MAST 6.5.0 introduces `/api/ext/v1` and MCP integration. Software testing and hardware validation for the new path are tracked separately;
+hardware validation remains pending.
+
+![Eight STM frames and a relative timeline of tip repair on Au through MAST](docs/assets/au-tip-repair-overview.png)
+
+*Real STM image sequence of tip repair on Au by an external agent using the previous MAST control path. Times are relative to the first displayed frame; #0652 uses first-order line-by-line leveling.*
+
+The public source baseline `9884ff5` completed the following software checks without an instrument on **2026-09-21**, using Windows and Python 3.13:
+
+| Validation | Recorded result |
 |---|---|
-| Python 源文件 / 物理行（`MASTv2/mast/`） | 843 / 315,846 |
-| 手写 TypeScript 行（`frontend/src/`，不含生成的 `schema.d.ts`） | 65,628 |
-| 定义了 `execute()` 的技能类（builtins + composite） | 444 |
-| HTTP / WebSocket 路由声明（静态计数） | 365 |
-| 测试函数定义（`tests/`，不展开参数化用例） | 11,659 |
-| agent | orchestrator + 七个域 agent（research_director、literature、experiment_design、instrument_control、data_processing、paper_writing、paper_review）+ brainstorm、buffer_summarizer 两个辅助节点 |
+| Backend tests | **14,356 passed, 0 failed**; 46 skipped, 2 expected failures |
+| Frontend unit tests | **985 / 985 passed** |
+| Frontend build and type checking | Passed |
+| API contract | 302 OpenAPI paths and 577 schema definitions; frontend types synchronized |
+| Release checks | Python syntax, import closure, and public-content cleanup checks passed |
 
+The tests use fakes and synthetic data. These results apply to the source baseline above; they do not mean the full suite was rerun
+after this documentation revision, or that hardware validation has been completed.
+See the [validation record (Chinese)](docs/OPEN_SOURCE_NOTES.md#四import-闭包与测试) for the environment, commands, skips, and reproduction requirements.
 
-以上按发布树静态统计：技能按类定义、路由按声明、测试按函数计数；运行时注册项、
-OpenAPI 路径及参数化测试用例使用不同口径。项目自 2026-03-17 起迭代，导出时私有仓累计 1016 次提交。
+## Core engineering capabilities
 
-## 公开范围
+MAST's engineering spans AI orchestration, physical instruments, scientific data, and web applications.
+The public source retains these main capabilities:
 
-本仓是 **MAST 6.5.0 的公开精简源码版**，保留多 agent 编排、通用仪器技能、执行与安全机制、
-感知和数据处理框架、React 操作界面、外部 agent 接口、技能投稿示例及相应测试。
-通用图库与文献管理代码随仓提供，初始数据为空。
+| Engineering problem | Implemented mechanisms | Representative entry points |
+|---|---|---|
+| Connecting model actions to physical instruments | Skill parameter ranges and SI-magnitude validation, execution modes and safety checks, instrument ownership, and abort handling; primitive instrument skills and declarative composite workflows share execution constraints | [Execution context](MASTv2/mast/core/execution_context.py), [safety checks](MASTv2/mast/core/safety.py) |
+| Continuing experimental work across agents | An orchestrator and seven domain agents divide the work; typed artifact references, bounded summaries, and state reducers carry results across handoffs | [State contract](MASTv2/mast/agents/state.py), [artifact channel](MASTv2/mast/agents/_shared/artifact_channel.py) |
+| Supplying continuous observations to slower reasoning | Vision, monitoring, and buffering organize instrument observations and expose observation age and scan progress to agents | [Buffer service](MASTv2/mast/buffer/service.py), [observation tools](MASTv2/mast/agents/_shared/buffer_tools.py) |
+| Handling failures in a real system | Segmented controller-protocol reads, disconnection and timeout handling; WebSocket reconnection and polling fallback; SSE distinguishes completion, interrupted streams, and inactivity timeouts | [Protocol patch](MASTv2/mast/core/nanonis_patch.py), [frontend streaming](frontend/src/lib/) |
+| Exposing capabilities to external agents | An external API, MCP integration, and a skill-contribution interface; job-request deduplication, content-conflict checks, and state handling after restart | [External jobs](MASTv2/mast/api/ext/jobs.py), [Claude Code integration](integrations/claude-code/README.md) |
 
-公开范围综合考虑**第三方版权与许可、知识产权与商业化安排，以及未发表研究和现场数据保护**。
-部分专用模块、论文移植技能、知识资产、视觉权重、仪器标定、站点配置与私有开发历史不随仓提供。
-本版本面向源码审阅、技术交流与无需仪器的软件测试；完整部署需补齐相应配置与资产。
-预处理内置 profile 是未标定示例，须使用自备数据评估并配置阈值。
+The [review guide](AGENTS.md) connects these mechanisms to source code and regression tests, supporting both human review
+and code assistants that inspect the implementation. These mechanisms connect reasoning to execution;
+they do not themselves guarantee that every instrument diagnosis or scientific conclusion is correct.
 
-*This public source edition preserves the project's general engineering framework, interfaces and tests.
-Selected specialized modules and assets are excluded for licensing, intellectual-property and commercialization
-considerations, and to protect unpublished research and site data. Instrument deployment requires additional
-configuration and assets.*
+## System architecture
 
-具体保留项、删减处理及影响见[公开版本说明](docs/OPEN_SOURCE_NOTES.md)；
-公开代码的许可见 [LICENSE](LICENSE) 与 [THIRD_PARTY.md](THIRD_PARTY.md)。
+**Experimental intent and operator → multi-agent collaboration → skills and composite workflows → execution validation and safety checks → Nanonis / STM**
 
-## 阅读、验证与参与
+**Instrument observations → vision and monitoring → buffer and state layers → agent reasoning and the next experiment**
 
-- **审阅实现**：[AGENTS.zh.md](AGENTS.zh.md) / [AGENTS.md](AGENTS.md) 提供六条实现与测试阅读路线。
-- **本地验证**：同一指南提供 Python 3.13、Node 24 的准备方法与检查命令，可运行测试、构建前端，无需连接仪器。
-  上述无需硬件的测试使用仪器替身，本仓不附带完整仪器模拟器；PDF 取全文与 OCR 的可选依赖另见 `MASTv2/requirements-pdf.txt`。
-- **扩展技能**：欢迎向 `contrib/skills/` 投稿，社区技能经维护者真机验证后可进入官方树。
-  规则见 [CONTRIBUTING.zh.md](CONTRIBUTING.zh.md) / [CONTRIBUTING.md](CONTRIBUTING.md)。
-- **接入外部 agent**：[使用指南](docs/external/)与 [Claude Code 插件](integrations/claude-code/)提供集成入口。
+| Layer | Responsibility |
+|---|---|
+| Controller | Low-level real-time feedback and instrument control. |
+| Vision, monitoring, and buffering | Produce observations, organize state, and provide data freshness and execution progress. |
+| Agents and shared artifacts | Perform slower reasoning, task decomposition, and handoffs; among the domain agents, `instrument_control` invokes instrument skills. |
+| API and React operator interface | Present experimental state and results, with controls for observation, intervention, and abort. |
 
-## 许可 · 第三方 · 投稿 · 安全
+See the review guide for the execution entry points used by manual operation and external interfaces.
+Together, these layers connect real-time control with slower scientific reasoning.
+`core`, `skills`, the seven domain agents, the internal API, vision and monitoring, data I/O, buffering,
+signed incremental updates, and networking have all been used functionally on the maintainer's instrument;
+that experience applies to the functions and versions in use at the time.
+Long-horizon planning in `conduct/`, the custom runtime in `agentruntime/`, `goals/`, the skill workshop and marketplace,
+and the qPlus paths remain experimental, with hardware validation pending.
+The custom runtime coexists with the LangGraph path; `engine_v2_*` switches default to off.
 
-[LICENSE](LICENSE)（MIT）· [THIRD_PARTY.md](THIRD_PARTY.md) · [CONTRIBUTING.md](CONTRIBUTING.md) / [CONTRIBUTING.zh.md](CONTRIBUTING.zh.md) · [SECURITY.md](SECURITY.md) / [SECURITY.zh.md](SECURITY.zh.md)
+Further reading: [agent topology](docs/v2/agent-topology.md), [skill catalog](docs/v2/skill-catalog.md), [model-provider adapters](docs/api_providers/).
+
+## Public source at a glance
+
+| Metric | Value |
+|---|---|
+| Python source files / physical lines (`MASTv2/mast/`) | 843 / 315,846 |
+| Handwritten TypeScript lines (`frontend/src/`, excluding generated `schema.d.ts`) | 65,628 |
+| Skill classes defining `execute()` (built-in and composite skills) | 444 |
+| HTTP / WebSocket route declarations (static count) | 365 |
+| Test function definitions (`tests/`, without expanding parameterized cases) | 11,659 |
+| Agents | One orchestrator; seven domain agents for research coordination, literature, experimental design, instrument control, data processing, paper writing, and paper review; and two auxiliary nodes for brainstorming and buffer summaries |
+
+These are static counts of the release tree: skills are counted by class definitions, routes by declarations, and tests by functions.
+Runtime registrations, OpenAPI paths, and parameterized test cases use different counting methods.
+Development began on 2026-03-17; the private repository had accumulated 1016 commits at export time.
+
+## Public release scope
+
+This repository is the **reduced public source edition of MAST 6.5.0**. It retains multi-agent orchestration, general instrument skills,
+execution and safety mechanisms, perception and data-processing frameworks, the React operator interface,
+external-agent interfaces, example skill contributions, and corresponding tests.
+General gallery and literature-management code is included with empty initial data.
+
+The release scope reflects **third-party copyright and licensing, intellectual property and commercialization arrangements,
+and protection of unpublished research and on-site data**.
+Some specialized modules, skills adapted from papers, knowledge assets, vision weights, instrument calibration,
+site configuration, and private development history are omitted.
+This edition supports source review, technical discussion, and software tests that require no instrument;
+a complete deployment requires the corresponding configuration and assets.
+The built-in preprocessing configuration is an uncalibrated example; evaluate it with your own data and configure its thresholds.
+
+See the [public release notes (Chinese)](docs/OPEN_SOURCE_NOTES.md) for retained components, omissions, and their effects.
+Licensing is documented in [LICENSE](LICENSE) and [THIRD_PARTY.md](THIRD_PARTY.md).
+
+## Reading, validation, and participation
+
+- **Review the implementation:** the [review guide](AGENTS.md) provides six routes through the implementation and tests.
+- **Validate locally:** the same guide covers preparation and checks with Python 3.13 and Node 24. Tests and frontend builds can run without connecting an instrument.
+  Tests that need no hardware use instrument fakes; this repository does not include a complete instrument simulator.
+  Optional dependencies for PDF full-text extraction and optical character recognition are listed in `MASTv2/requirements-pdf.txt`.
+- **Extend the skills:** contributions to `contrib/skills/` are welcome. Community skills may enter the official tree after hardware validation by the maintainers.
+  See the [contribution guide](CONTRIBUTING.md).
+- **Connect external agents:** start with the [user guide](docs/external/en/README.md) and [Claude Code plugin](integrations/claude-code/README.md).
+
+## References and introductory resources
+
+These sources support the STM background and the research motivation for autonomous experiments.
+MAST's implementation and validation are established by this repository's source, tests, and explicitly versioned records.
+Paper titles below are given in their original language.
+
+1. Binnig et al. (1982), [Surface Studies by Scanning Tunneling Microscopy](https://doi.org/10.1103/PhysRevLett.49.57). An early experimental STM paper.
+2. Tersoff and Hamann (1985), [Theory of the scanning tunneling microscope](https://doi.org/10.1103/PhysRevB.31.805). The theoretical connection between imaging and local electronic states, with its underlying approximations.
+3. Song et al. (2010), [A 10 mK Scanning Probe Microscopy Facility](https://www.nist.gov/publications/10-mk-scanning-probe-microscopy-facility). Ultralow temperature, UHV, and junction stability.
+4. Schwenk et al. (2020), [Achieving µeV tunneling resolution in an in-operando scanning tunneling microscopy, atomic force microscopy, and magnetotransport system for quantum materials research](https://doi.org/10.1063/5.0005320). Thermalization, filtering, and high-resolution spectroscopy.
+5. Yothers et al. (2017), [Real-space post-processing correction of thermal drift and piezoelectric actuator nonlinearities in scanning tunneling microscope images](https://doi.org/10.1063/1.4974271). History dependence and correction of piezoelectric scanners.
+6. Chen et al. (2022), [Precise atom manipulation through deep reinforcement learning](https://www.nature.com/articles/s41467-022-35149-w). Manipulation and atom assembly in a real STM.
+7. Okuyama et al. (2025), [Integrated AI Framework for Room-Temperature Atom Manipulation in Scanning Probe Microscopy](https://doi.org/10.1021/acs.nanolett.5c04982). Integration of multiple perception and control modules.
+8. Narasimha et al. (2026), [Self-Driving Scanning Probe Microscopy: From Acceleration to Discovery and Manipulation](https://doi.org/10.1021/acs.accounts.6c00273). A review of directions in autonomous scanning probe research.
+9. Li et al. (2026), [Artificial intelligence-empowered scanning probe microscopy: Recent advances and future perspectives](https://doi.org/10.1016/j.asi.2026.100003). Expert knowledge, autonomous tip conditioning, and closed-loop experiments.
+10. [Electrons, Photons, and Force: Quantitative Single-Molecule Measurements from Physics to Biology](https://doi.org/10.1021/nn103298x) (2011). Includes STM measurement principles and typical current scales.
+11. [Electrostatic sample-tip interactions in the scanning tunneling microscope](https://doi.org/10.1103/PhysRevLett.70.2471) (1993). An experimental study of tip-induced band bending.
+12. Wikipedia, [Scanning tunneling microscope](https://en.wikipedia.org/wiki/Scanning_tunneling_microscope). An introductory index of terminology and principles.
+
+## License, third parties, contributions, and security
+
+[LICENSE](LICENSE) (MIT) · [THIRD_PARTY.md](THIRD_PARTY.md) · [Contribution guide](CONTRIBUTING.md) · [Security policy](SECURITY.md)
