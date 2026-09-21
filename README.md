@@ -11,7 +11,7 @@ Its central question is how AI can keep acquiring trustworthy data and advancing
 
 ![Python 3.13](https://img.shields.io/badge/python-3.13-blue) ![TypeScript](https://img.shields.io/badge/frontend-React%2018%20%2B%20TypeScript-blue) ![MIT license](https://img.shields.io/badge/license-MIT-green) ![Snapshot date](https://img.shields.io/badge/snapshot-2026-09-21-lightgrey)
 
-**In the previous version, an external AI agent operated a real STM through MAST over five days and five nights.**
+**In a MAST 6.4.0 real-instrument campaign, an external AI agent worked across days and nights; the timestamped STM record spans about 93 hours.**
 This is a deployment experience reported by the maintainer. The `/api/ext/v1` interface and accompanying MCP integration
 introduced in MAST 6.5.0 have passed software tests; hardware validation remains pending.
 The sections below distinguish the scientific challenges of STM, MAST's engineering, and the scope of each validation claim.
@@ -143,15 +143,59 @@ experimental intelligence. This is the project's research vision, not an already
 
 ## MAST's results and validation
 
-**In the previous version, an external AI agent operated a real STM through MAST over five days and five nights.**
-This operation across multiple days and nights brought agent decisions, instrument execution, and state feedback into a real experimental workflow.
-The deployment used the previous version's control path; experimental data and complete logs are not included in this source release.
-MAST 6.5.0 introduces `/api/ext/v1` and MCP integration. Software testing and hardware validation for the new path are tracked separately;
-hardware validation remains pending.
+**In a MAST 6.4.0 real-instrument campaign, an external AI agent worked across days and nights; the timestamped STM record spans about 93 hours.**
+It did more than write plans: at a real tunneling junction, it repeatedly relocated a drifting target, acquired spectra and images, and kept the experiment moving through communication faults. The researcher set scientific goals and time budgets and maintained the cryogenic environment; the agent arranged the main measurements through MAST without a human issuing every instrument command. Complete datasets and logs are not included in this source release; the figures below are selected visual excerpts.
+MAST 6.5.0 introduces `/api/ext/v1` and MCP integration. The new interface has passed software tests; hardware validation remains pending.
 
 ![Eight STM frames and a relative timeline of tip repair on Au through MAST](docs/assets/au-tip-repair-overview.png)
 
-*Real STM image sequence of tip repair on Au by an external agent using the previous MAST control path. Times are relative to the first displayed frame; #0652 uses first-order line-by-line leveling.*
+*Tip repair on Au produced atomically resolved STM images.*
+
+### One cross-day experimental record
+
+This campaign used MAST **6.4.0**. At the fixed snapshot of **2026-09-21 20:12:59 China Standard Time**, its record stretched across about **93 hours**: an approximately **4.3 K (−269 °C)** environment, a common reference setpoint of just **20 pA**, a subnanometer tunneling gap, and an approximately **18 pm**-deep feature in the early tracking segment. The researcher supplied goals and extended time budgets and paused for liquid-nitrogen refills; the agent planned and executed the main measurements and target tracking. The 4.3 K figure is a nominal condition, and 20 pA was not the only setpoint.
+
+![Spiral clock of timestamped operations across days and nights](docs/assets/long-run-clock.svg)
+
+*One turn is 24 hours: gold ticks are spectra, orange arcs are images, dark diamonds are local tip-manipulation attempts, and open circles mark resumed acquisition after communication faults.*
+
+| Measure | Logged at the snapshot |
+|---|---|
+| Record span | About **93 hours**, from September 17 to 21 |
+| Spectroscopy | **677** spectra, **272,727** sampled points; **24.4 hours** of acquisition |
+| Imaging | **247** frames; **22.4 hours** of scanning |
+| Tip movement and deliberate waits | **485** moves; **1,615** waits totaling **21.5 hours** |
+| Target tracking | **113** re-registrations; median position-prediction error about **25 pm** |
+| Traceable record | **5,628** timestamped events, including measurements, waits, checks, and exceptions—not 5,628 instrument commands |
+
+![Time-lapse of the early tracking frames and drift trajectory](docs/assets/long-run-drift.gif)
+
+*Thermal drift continually shifts the target. This time-lapse pairs 46 early tracking images with their position trajectory; the table above covers a longer record window.*
+
+The achievement is not simply staying awake. It is knowing when to measure, wait, stop, recover, and revise an explanation.
+
+| It knows how to… | Evidence from this run |
+|---|---|
+| **Work through the night** | From 22:00 to 06:00, it still acquired **202** spectra and **111** images and made **132** tip moves. |
+| **Wait when physics demands it** | **1,615** deliberate waits totaled **21.5 hours**; the record shows it did not trade settling time for a faster-looking run. |
+| **Keep the target in sight** | It re-registered a thermally drifting target **113** times, with a median position-prediction error of about **25 pm**. |
+| **Know when to stop** | It dropped a measurement that would overrun a handoff and rejected a plan beyond the confirmed scan area. |
+| **Return from a fault** | Two resumptions of acquisition after communication faults are marked as open circles on the clock; the faults remain visible in the record. |
+| **Show scientific integrity** | It did not hide inconvenient evidence: after a preliminary interpretation failed review, the agent explicitly withdrew it. Raw images and spectra, failed attempts, timestamped actions, and the correction trail remain in the record. The willingness to correct a claim and let it be checked against the original data is one of this AI experiment's strongest achievements. |
+
+### Selected STM and STS results
+
+The original measurements are arranged into three multi-panel figures covering spectroscopy, spatial sampling, and imaging. Axes, units, and essential settings remain; the sample name and internal site labels have been removed.
+
+![Six-panel figure of reference spectra, a time-ordered heat map, and tip-height response](docs/assets/long-run-results-spectra.png)
+
+![Seven-panel figure of local spectra, two current grids, and line spectroscopy](docs/assets/long-run-results-spatial.png)
+
+![Six-panel figure of STM frames, lock-in X-channel maps, and an apparent-height timeline](docs/assets/long-run-results-imaging.png)
+
+*The two grids in the second figure both map current at −0.5 V under different settings. Panels d–e of the third figure show the lock-in X channel; panel f reaches about hour 76.*
+
+The table above is a fixed snapshot of the event log, not a claim about the final dataset.
 
 The public source baseline `9884ff5` completed the following software checks without an instrument on **2026-09-21**, using Windows and Python 3.13:
 
