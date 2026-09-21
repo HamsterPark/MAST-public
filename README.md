@@ -20,6 +20,10 @@ MAST 6.5.0 在此基础上新增 `/api/ext/v1` 与配套 MCP 集成：新接口�
 Version 6.5.0 builds on that experience with a new external API and MCP integration,
 which have undergone software testing and await hardware validation.
 
+![Tip conditioning on Au through MAST: eight STM frames on a relative timeline](docs/assets/au-tip-repair-overview.png)
+
+*外部 agent 通过上一版本 MAST 控制路径在 Au 上修针的真实 STM 图像序列。时间相对首张展示帧；#0652 采用逐行一阶调平。*
+
 本次公开源码基线 `9884ff5` 已于 **2026-09-21** 在 Windows / Python 3.13 环境完成无需仪器的软件验证：
 
 | 验证项目 | 已记录结果 |
