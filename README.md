@@ -11,8 +11,8 @@ Its central question is how AI can keep acquiring trustworthy data and advancing
 
 ![Python 3.13](https://img.shields.io/badge/python-3.13-blue) ![TypeScript](https://img.shields.io/badge/frontend-React%2018%20%2B%20TypeScript-blue) ![MIT license](https://img.shields.io/badge/license-MIT-green) ![Snapshot date](https://img.shields.io/badge/snapshot-2026-09-21-lightgrey)
 
-**In a MAST 6.4.0 real-instrument campaign, an external AI agent worked across days and nights; the timestamped STM record spans about 93 hours.**
-This is a deployment experience reported by the maintainer. The `/api/ext/v1` interface and accompanying MCP integration
+**Two separate real-instrument demonstrations are featured below: tip repair on Au yielding atomically resolved STM images, and a MAST 6.4.0 campaign whose dated record covers about 93 hours.**
+These deployments are reported by the maintainer. The `/api/ext/v1` interface and accompanying MCP integration
 introduced in MAST 6.5.0 have passed software tests; hardware validation remains pending.
 The sections below distinguish the scientific challenges of STM, MAST's engineering, and the scope of each validation claim.
 
@@ -143,17 +143,20 @@ experimental intelligence. This is the project's research vision, not an already
 
 ## MAST's results and validation
 
-**In a MAST 6.4.0 real-instrument campaign, an external AI agent worked across days and nights; the timestamped STM record spans about 93 hours.**
-It did more than write plans: at a real tunneling junction, it repeatedly relocated a drifting target, acquired spectra and images, and kept the experiment moving through communication faults. The researcher set scientific goals and time budgets and maintained the cryogenic environment; the agent arranged the main measurements through MAST without a human issuing every instrument command. Complete datasets and logs are not included in this source release; the figures below are selected visual excerpts.
+The two selected demonstrations differ in scale: a short Au tip-repair task and a separate, longer MAST 6.4.0 experiment. The latter was still underway at the fixed log snapshot. Complete datasets and logs are not included in this source release; the figures below are selected visual excerpts.
 MAST 6.5.0 introduces `/api/ext/v1` and MCP integration. The new interface has passed software tests; hardware validation remains pending.
+
+### Short demonstration: tip repair on Au
 
 ![Eight STM frames and a relative timeline of tip repair on Au through MAST](docs/assets/au-tip-repair-overview.png)
 
-*Tip repair on Au produced atomically resolved STM images.*
+*An external agent repaired the tip on Au through an earlier MAST control path and obtained atomically resolved STM images. This is independent of the long experiment below.*
 
-### One cross-day experimental record
+### Long demonstration: an ongoing STM experiment
 
-This campaign used MAST **6.4.0**. At the fixed snapshot of **2026-09-21 20:12:59 China Standard Time**, its record stretched across about **93 hours**: an approximately **4.3 K (−269 °C)** environment, a common reference setpoint of just **20 pA**, a subnanometer tunneling gap, and an approximately **18 pm**-deep feature in the early tracking segment. The researcher supplied goals and extended time budgets and paused for liquid-nitrogen refills; the agent planned and executed the main measurements and target tracking. The 4.3 K figure is a nominal condition, and 20 pA was not the only setpoint.
+In this separate campaign, the agent did more than write plans: at a real tunneling junction, it repeatedly relocated a drifting target, acquired spectra and images, and kept the experiment moving through communication faults. The researcher set scientific goals and time budgets and paused for liquid-nitrogen refills; the agent arranged the main measurements through MAST without a human issuing every instrument command.
+
+This campaign used MAST **6.4.0**. At the fixed snapshot of **2026-09-21 20:12:59 China Standard Time**, its record stretched across about **93 hours**: an approximately **4.3 K (−269 °C)** environment, a common reference setpoint of just **20 pA**, a subnanometer tunneling gap, and an approximately **18 pm**-deep feature in the early tracking segment. The 4.3 K figure is a nominal condition, and 20 pA was not the only setpoint.
 
 ![Spiral clock of timestamped operations across days and nights](docs/assets/long-run-clock.svg)
 

@@ -7,11 +7,12 @@ who drives MAST through its **external-agent API**, `/api/ext/v1`, rather than t
 built-in agents. It introduces the API workflow and execution rules; the operator supplies the
 instrument configuration, calibration and permission to act.
 
-> **Validation:** in the previous version, an external AI agent operated a real STM through MAST
-> over five days and five nights. This guide describes the **new 6.5.0 `/api/ext/v1` and MCP path**:
+> **Validation:** in an ongoing experiment, an external AI agent operated a real STM through
+> MAST 6.4.0's earlier control path over an approximately 93-hour window at the recorded snapshot.
+> This guide describes the **new 6.5.0 `/api/ext/v1` and MCP path**:
 > unit and local end-to-end tests use real HTTP, a real MCP server process and a mock instrument;
-> hardware validation of this new path is pending. The previous deployment used the earlier
-> control path. The operator should supervise initial hardware sessions on the new interface.
+> hardware validation of this new path is pending. The operator should supervise initial hardware
+> sessions on the new interface.
 
 The public source edition includes this guide and the client integration, but not a commissioned
 instrument deployment. The connection examples assume an operator has already configured and
