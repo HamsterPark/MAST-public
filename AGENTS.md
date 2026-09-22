@@ -5,8 +5,9 @@
 MAST (Modular Autonomous SPM Toolkit) is a full-stack multi-agent system that operates
 a scanning tunnelling microscope (STM) through a Nanonis controller. It connects
 experiment planning, instrument skills, deterministic execution checks, perception,
-data analysis and a React operator interface. **In a MAST 6.4.0 real-instrument
-campaign, an external AI agent's timestamped STM record spanned about 93 hours.**
+data analysis and a React operator interface. **In a completed MAST 6.4.0
+real-instrument campaign, an external AI agent's timestamped STM record spanned
+about 99 hours (2026-09-17 23:10:37–2026-09-22 02:08:10 CST), including gaps.**
 
 This public source edition retains the general engineering framework, interfaces
 and tests. Selected specialized modules and assets are excluded for third-party
@@ -80,8 +81,9 @@ and [external-agent integration](docs/external/).
   instrument ownership, protocol failure handling, typed artifact handoffs,
   observation freshness and operator connectivity. The routes above provide
   concrete entry points into each mechanism.
-- **MAST 6.4.0 hardware operation:** an external AI agent's timestamped real-STM
-  record spanned about 93 hours. The maintainer reports this
+- **MAST 6.4.0 hardware operation:** an external AI agent's completed real-STM
+  record spanned about 99 hours, including interruptions rather than continuous
+  instrument operation. The maintainer reports this
   deployment experience. Selected de-identified figures appear in the README;
   complete experimental datasets and full logs remain outside this release.
 - **Public 6.5.0 software validation:** on 2026-09-21, the Windows / Python 3.13
@@ -92,7 +94,7 @@ and [external-agent integration](docs/external/).
 - **New external interface:** `/api/ext/v1` and its MCP integration extend the
   project's external-agent capabilities with a public interface. They have
   undergone software testing; hardware validation of this new path is pending.
-  The 93-hour record used the MAST 6.4.0 control path.
+  The approximately 99-hour record used the MAST 6.4.0 control path.
 - **Experimental extensions:** `MASTv2/mast/conduct/`, `MASTv2/mast/agentruntime/`,
   `MASTv2/mast/goals/`, the skill workshop/market and qPlus paths explore longer
   planning, execution and instrument capabilities; hardware validation is pending.

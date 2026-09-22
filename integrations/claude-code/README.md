@@ -5,8 +5,9 @@
 Connect Claude Code to MAST's real-instrument workflow through `/api/ext/v1`: read experimental
 context, discover skills, submit trackable jobs, retrieve data and collaborate with the operator.
 
-In an ongoing experiment, an external agent used MAST 6.4.0's earlier control path to operate a
-real STM over an approximately 93-hour window at the recorded snapshot.
+In a completed experiment, an external agent used MAST 6.4.0's earlier control path to operate a
+real STM. The timestamped record spans 2026-09-17 23:10:37 to 2026-09-22 02:08:10 CST
+(about 99 hours including gaps, not continuous instrument operation).
 This plugin targets the new 6.5.0 interface, which has undergone software testing and awaits hardware
 validation. The public source includes the plugin and general API; instrument deployment needs
 additional configuration and assets. For source review, start with [the repository guide](../../AGENTS.md).
