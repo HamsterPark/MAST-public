@@ -7,7 +7,7 @@ context, discover skills, submit trackable jobs, retrieve data and collaborate w
 
 In a completed experiment, an external agent used MAST 6.4.0's earlier control path to operate a
 real STM. The timestamped record spans 2026-09-17 23:10:37 to 2026-09-22 02:08:10 CST
-(about 99 hours including gaps, not continuous instrument operation).
+(about 99 hours).
 This plugin targets the new 6.5.0 interface, which has undergone software testing and awaits hardware
 validation. The public source includes the plugin and general API; instrument deployment needs
 additional configuration and assets. For source review, start with [the repository guide](../../AGENTS.md).

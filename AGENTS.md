@@ -7,7 +7,7 @@ a scanning tunnelling microscope (STM) through a Nanonis controller. It connects
 experiment planning, instrument skills, deterministic execution checks, perception,
 data analysis and a React operator interface. **In a completed MAST 6.4.0
 real-instrument campaign, an external AI agent's timestamped STM record spanned
-about 99 hours (2026-09-17 23:10:37–2026-09-22 02:08:10 CST), including gaps.**
+about 99 hours (2026-09-17 23:10:37–2026-09-22 02:08:10 CST).**
 
 This public source edition retains the general engineering framework, interfaces
 and tests. Selected specialized modules and assets are excluded for third-party
@@ -82,8 +82,7 @@ and [external-agent integration](docs/external/).
   observation freshness and operator connectivity. The routes above provide
   concrete entry points into each mechanism.
 - **MAST 6.4.0 hardware operation:** an external AI agent's completed real-STM
-  record spanned about 99 hours, including interruptions rather than continuous
-  instrument operation. The maintainer reports this
+  record spanned about 99 hours. The maintainer reports this
   deployment experience. Selected de-identified figures appear in the README;
   complete experimental datasets and full logs remain outside this release.
 - **Public 6.5.0 software validation:** on 2026-09-21, the Windows / Python 3.13

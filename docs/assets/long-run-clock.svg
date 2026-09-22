@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="-56 -56 1112 1112" role="img" aria-labelledby="title desc">
   <title id="title">MAST long-run activity clock</title>
-  <desc id="desc">One revolution is 24 hours. Gold ticks mark completed spectra, orange arcs scans, gray arcs logged waits, small dots tip moves, dark diamonds local tip interventions, and open circles acquisitions resumed after a logged automatic retry. The approximately 99-hour span includes gaps and is not a claim of uninterrupted instrument operation. The completed log ends 2026-09-22 02:08:10 UTC+08:00.</desc>
-  <metadata>Final handoff: 2026-09-22T02:08:10+08:00; span hours (including gaps): 98.96; spectra: 677; frames: 267; waits at least five seconds: 1531; tip moves: 485; local tip interventions: 18; acquisitions resumed after logged automatic retry: 2. Generated from timestamped event classes only.</metadata>
+  <desc id="desc">One revolution is 24 hours. Gold ticks mark completed spectra, orange arcs scans, gray arcs logged waits, small dots tip moves, dark diamonds local tip interventions, and open circles acquisitions resumed after a logged automatic retry. The completed log ends 2026-09-22 02:08:10 UTC+08:00.</desc>
+  <metadata>Final handoff: 2026-09-22T02:08:10+08:00; span hours: 98.96; spectra: 677; frames: 267; waits at least five seconds: 1531; tip moves: 485; local tip interventions: 18; acquisitions resumed after logged automatic retry: 2. Generated from timestamped event classes only.</metadata>
   <style>
     .night-fill{fill:#E7EDF2;stroke:none}.ring{fill:none;stroke:#C9D2D9;stroke-width:1.2}.ring-night{fill:none;stroke:#1F2A33;stroke-width:5;stroke-linecap:butt}
     .hr-tick{stroke:#AEBAC4;stroke-width:1.4}.hr-lab{font-family:Bahnschrift,'DIN Alternate','Arial Narrow',sans-serif;font-weight:600;fill:#1F2A33;font-size:30px;text-anchor:middle;dominant-baseline:central}

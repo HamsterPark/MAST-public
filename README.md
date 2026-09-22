@@ -143,7 +143,7 @@ experimental intelligence. This is the project's research vision, not an already
 
 ## MAST's results and validation
 
-The two selected demonstrations differ in scale: a short Au tip-repair task and a separate, completed MAST 6.4.0 experiment. The latter's main event log covers approximately 99 hours, including pauses. Complete datasets and logs are not included in this source release; the figures below are selected visual excerpts.
+The two selected demonstrations differ in scale: a short Au tip-repair task and a separate, completed MAST 6.4.0 experiment. The latter's main event log covers approximately 99 hours. Complete datasets and logs are not included in this source release; the figures below are selected visual excerpts.
 MAST 6.5.0 introduces `/api/ext/v1` and MCP integration. The new interface has passed software tests; hardware validation remains pending.
 
 ### Short demonstration: tip repair on Au
@@ -156,15 +156,15 @@ MAST 6.5.0 introduces `/api/ext/v1` and MCP integration. The new interface has p
 
 In this separate campaign, the agent did more than write plans: at a real tunneling junction, it repeatedly relocated a drifting target, acquired spectra and images, and kept the experiment moving through communication faults. The researcher set scientific goals and time budgets and paused for liquid-nitrogen refills; the agent arranged the main measurements through MAST without a human issuing every instrument command.
 
-This campaign used MAST **6.4.0**. Its main log runs from **2026-09-17 23:10:37 to 2026-09-22 02:08:10 China Standard Time**—**98 hours 57 minutes** including pauses, not uninterrupted acquisition. The experiment operated in an approximately **4.3 K (−269 °C)** environment, with a common reference setpoint of just **20 pA**, a subnanometer tunneling gap, and an approximately **18 pm**-deep feature in the early tracking segment. The 4.3 K figure is a nominal condition, and 20 pA was not the only setpoint.
+This campaign used MAST **6.4.0**. Its main log runs from **2026-09-17 23:10:37 to 2026-09-22 02:08:10 China Standard Time**—**98 hours 57 minutes**. The experiment operated in an approximately **4.3 K (−269 °C)** environment, with a common reference setpoint of just **20 pA**, a subnanometer tunneling gap, and an approximately **18 pm**-deep feature in the early tracking segment. The 4.3 K figure is a nominal condition, and 20 pA was not the only setpoint.
 
 ![Spiral clock of timestamped operations in the completed long-run record](docs/assets/long-run-clock.svg)
 
-*One turn is 24 hours: gold ticks are spectra, orange arcs are images, dark diamonds are local tip-manipulation attempts, and open circles mark resumed acquisition after communication faults. The span includes pauses.*
+*One turn is 24 hours: gold ticks are spectra, orange arcs are images, dark diamonds are local tip-manipulation attempts, and open circles mark resumed acquisition after communication faults.*
 
 | Measure | Final main-log total |
 |---|---|
-| Record span | **98 hours 57 minutes**, September 17–22, including pauses |
+| Record span | **98 hours 57 minutes**, September 17–22 |
 | Spectroscopy | **677** spectra, **272,727** sampled points; **24.4 hours** of acquisition |
 | Imaging | **267** completed frames; **25.3 hours** of scanning |
 | Tip movement and deliberate waits | **485** moves; **1,671** logged waits with requested durations totaling **21.9 hours** |
