@@ -4,17 +4,23 @@
 
 **Enabling AI to observe, reason, act, and test the consequences in real experiments at the atomic scale.**
 
-MAST connects multi-agent collaboration, instrument control, visual observation, data analysis, and an operator interface
-for scanning tunneling microscopy (STM). It turns experimental intent into physical actions with execution constraints,
-state feedback, and opportunities for operator intervention.
-Its central question is how AI can keep acquiring trustworthy data and advancing an experiment when the instrument's state is only partly visible and actions can change the system being measured.
+MAST is an experimental orchestration and execution system for scanning tunneling microscopy (STM).
+It connects multi-agent reasoning, instrument skills, visual observation, scientific analysis, and an operator interface,
+turning research objectives into physical operations with explicit execution constraints and observable outcomes.
+Its central contribution is a practical foundation for sustained experimental work: acquire evidence, act on the instrument,
+assess the consequences, and carry the experiment forward as the tip, sample, and measurement conditions evolve.
+
+Within our SPM research software, MAST provides the instrument runtime and workflows;
+[VISTA-SPM](https://github.com/HamsterPark/VISTA-SPM) develops the reusable visual reasoning layer;
+[dsh-spm](https://github.com/HamsterPark/dsh-spm) implements SPM capabilities in DeepSeek Harness;
+and [STM-Bench](https://github.com/HamsterPark/STM-Bench) supplies simulated experiments and evidence-based evaluation.
+Their roles and version scope are described [below](#mast-vista-spm-and-the-experimental-reasoning-loop).
 
 ![Python 3.13](https://img.shields.io/badge/python-3.13-blue) ![TypeScript](https://img.shields.io/badge/frontend-React%2018%20%2B%20TypeScript-blue) ![MIT license](https://img.shields.io/badge/license-MIT-green) ![Snapshot date](https://img.shields.io/badge/snapshot-2026-09-21-lightgrey)
 
 **Two separate real-instrument demonstrations are featured below: tip repair on Au yielding atomically resolved STM images, and a completed MAST 6.4.0 campaign with nearly 100 hours of timestamped records.**
-These deployments are reported by the maintainer. The `/api/ext/v1` interface and accompanying MCP integration
-introduced in MAST 6.5.0 have passed software tests; hardware validation remains pending.
-The sections below distinguish the scientific challenges of STM, MAST's engineering, and the scope of each validation claim.
+The scientific background, system architecture, and versioned evidence below connect these demonstrations to the broader goal
+of autonomous experimental science.
 
 ## What is STM?
 
@@ -58,7 +64,8 @@ STM can also operate at room temperature, in air, or in liquids; low temperature
 
 **We see autonomous STM as one of the most demanding and representative challenges in AI for experimental science.**
 It brings atomic-scale perception, physical reasoning, precision control, fault diagnosis, and experimental design into a single loop.
-“Crown jewel” expresses a judgment about its research value, rather than a universal ranking of scientific instruments by difficulty.
+Its research value lies in this concentration of scientific demands: the agent must establish trustworthy measurement conditions
+while using the same instrument to investigate matter at the atomic scale.
 
 ### A partly observable physical system that actions can change
 
@@ -66,8 +73,8 @@ The crucial hidden variables are the **atomic configuration, chemical state, and
 During routine STM operation, the directly available images, spectra, and currents reflect the combined tip–sample response,
 not the true state of the apex itself. Inferring that state from these signals generally has no unique solution:
 different tip–sample combinations can produce similar observations.
-Judgments about tip condition therefore remain **evidence-constrained but uncertain guesses**. Additional observations can test
-or rule out some explanations without uniquely recovering the actual microscopic configuration.
+Tip-state inference therefore proceeds through **testable hypotheses constrained by experimental evidence**. Repeated observations,
+reference measurements, and deliberate controls refine those hypotheses and establish which measurement conditions can be trusted.
 
 This unknown state also changes with operation: scanning, pulses, or contact can rearrange the apex or transfer material to it,
 altering image contrast and spectroscopic response. An autonomous system must retain uncertainty about the tip state
@@ -97,8 +104,8 @@ See [Tersoff–Hamann](https://doi.org/10.1103/PhysRevB.31.805) for the theory a
 We therefore view autonomous STM as a combination of **decision-making under partial observability, online system identification,
 active learning, and precision control**. This is a modeling perspective: an agent uses observations and action history to form
 tentative judgments about possible states and their plausibility, while choosing actions that both advance the experiment and test those judgments.
-Such state estimation retains uncertainty; it does not mean reconstructing the true tip structure.
-It is not a claim that a complete, accurate STM state model already exists, or that MAST implements every autonomous capability.
+The working model records uncertainty and evolves with the evidence, allowing the agent to select useful controls and revise
+its interpretation as the experiment develops.
 
 ### The challenge is diagnosis, recovery, and scientific judgment
 
@@ -108,7 +115,7 @@ tip-induced band bending, feedback, and noise. Different explanations may call f
 comparing scan directions, revisiting a reference area, or relocating and repeating a measurement after tip conditioning.
 For example, studies of semiconductor surfaces have directly measured band bending caused by the tip's electric field;
 see this [study of electrostatic tip–sample interactions](https://doi.org/10.1103/PhysRevLett.70.2471).
-These are diagnostic approaches; any actual action depends on sample conditions, instrument constraints, and operating authorization.
+The sample, calibrated instrument limits, and operator's authorization define the admissible experimental controls.
 
 The hard part is connecting these steps into reliable causal reasoning: detect an anomaly, propose possible causes, select observations
 that distinguish them, check the outcome, and decide whether to continue, recover, repeat the measurement, or involve the operator.
@@ -126,7 +133,7 @@ manipulation, and closed-loop experiments as important challenges. See [Li et al
 Research has demonstrated concrete progress. In 2022, deep reinforcement learning enabled Ag atom manipulation in a real STM,
 and path planning supported autonomous atom assembly. In 2025, a room-temperature STM study integrated tip and surface assessment,
 atom recognition, area selection, drift correction, tip conditioning, and atom manipulation.
-These results apply to specific materials and tasks; they do not establish general autonomous research on unknown samples.
+Together, these studies establish concrete building blocks for linking perception, adaptive control, and atomic-scale fabrication.
 See [Chen et al., 2022](https://www.nature.com/articles/s41467-022-35149-w) and
 [Okuyama et al., 2025](https://doi.org/10.1021/acs.nanolett.5c04982).
 
@@ -139,11 +146,32 @@ The long-term goal is a scientific loop: **observe → propose a hypothesis → 
 to the instrument and sample → update the evidence → choose the next experiment**.
 Ruling out artifacts, restoring trustworthy measurements, and testing physical hypotheses provide a stronger test of autonomy
 than completing a single scan. STM's local environment and atomic-scale feedback make it a promising platform for evaluating
-experimental intelligence. This is the project's research vision, not an already completed general-purpose “AI scientist.”
+experimental intelligence. MAST's research agenda is to make this loop sustained, inspectable, and reusable across scientific tasks.
+
+## MAST, VISTA-SPM, and the experimental reasoning loop
+
+**MAST makes scientific intent executable; VISTA-SPM makes visual evidence persist, remain inspectable, and support quantitative reasoning.** This division connects two essential parts of an autonomous experiment: operating the instrument and understanding what its observations mean over time.
+
+[VISTA](https://arxiv.org/abs/2610.02200) shows how direct images, lossless visual memory, active inspection, and revisable notes can support a multimodal model through extended interaction. The connection to STM is especially strong: a defect in an earlier frame may become a positional reference, and a comparison across several scans may distinguish sample motion from drift or a change in the tip. An experimental record gains scientific value when the agent can return to its spatial detail and measurement conditions as new hypotheses emerge.
+
+Our companion project [VISTA-SPM](https://github.com/HamsterPark/VISTA-SPM) develops this idea into a general visual framework for SPM. It couples persistent image archives with calibrated coordinates, region inspection, physical-value readout, line profiles, Fourier analysis, feature localisation, and registered image differences. These modules give an agent concrete ways to connect a visual observation to a measurable scientific question.
+
+| Project | Central responsibility | Contribution to the shared workflow |
+|---|---|---|
+| **MAST / this MAST-public edition** | Experimental orchestration and instrument execution | Translate scientific goals into skills and workflows, validate their parameters, manage instrument ownership, expose state and progress, and support recovery and operator intervention. |
+| [VISTA-SPM](https://github.com/HamsterPark/VISTA-SPM) | Visual reasoning framework and Python reference modules | Preserve and retrieve observations, inspect spatial detail, measure in physical units, and carry experimental understanding across long interactions. |
+| [dsh-spm](https://github.com/HamsterPark/dsh-spm) | SPM capabilities in the DeepSeek Harness runtime | Implement instrument and scientific tools in TypeScript and adapt the visual-memory and measurement design to dsh sessions, tool calls, and observation delivery. |
+| [STM-Bench](https://github.com/HamsterPark/STM-Bench) | Simulated experiments and evidence-based evaluation | Provide a controlled instrument environment, scientific tasks, acquisition records, and judging for comparing agent strategies and interfaces. |
+
+For example, after an atom-manipulation action, the execution layer supplies the operation record and resulting scan. The visual layer can retrieve the earlier frame, register the two images, and measure the atom relative to neighbouring landmarks. The agent then decides which explanation fits the evidence and which control measurement to acquire next. This is the scientific loop that the projects are designed to make explicit, reusable, and open to evaluation.
+
+The visual modules also have a useful scope outside an instrument session: archived scans can be inspected and measured offline, and the same interfaces can be adapted to other agent hosts. MAST contributes the operational setting and scientific workflows; dsh-spm demonstrates the TypeScript implementation; STM-Bench provides the experimental testbed.
+
+**Version and availability.** This repository remains the MAST 6.5.0 public source snapshot described below. VISTA-SPM is the separate reference for the visual design used in ongoing MAST development and ported to dsh-spm; its repository is currently private while publication is prepared. Its own simulator results and integration records provide the validation context for that visual layer.
 
 ## MAST's results and validation
 
-The two selected demonstrations differ in scale: a short Au tip-repair task and a separate, completed MAST 6.4.0 experiment. The latter's main event log covers approximately 99 hours. Complete datasets and logs are not included in this source release; the figures below are selected visual excerpts.
+The maintainer reports two selected demonstrations at different scales: a short Au tip-repair task and a separate, completed MAST 6.4.0 experiment. The latter's main event log covers approximately 99 hours. The figures below present selected visual excerpts; complete datasets and logs remain outside this source release.
 MAST 6.5.0 introduces `/api/ext/v1` and MCP integration. The new interface has passed software tests; hardware validation remains pending.
 
 ### Short demonstration: tip repair on Au
@@ -228,8 +256,8 @@ The public source retains these main capabilities:
 | Exposing capabilities to external agents | An external API, MCP integration, and a skill-contribution interface; job-request deduplication, content-conflict checks, and state handling after restart | [External jobs](MASTv2/mast/api/ext/jobs.py), [Claude Code integration](integrations/claude-code/README.md) |
 
 The [review guide](AGENTS.md) connects these mechanisms to source code and regression tests, supporting both human review
-and code assistants that inspect the implementation. These mechanisms connect reasoning to execution;
-they do not themselves guarantee that every instrument diagnosis or scientific conclusion is correct.
+and code assistants that inspect the implementation. These mechanisms make actions and observations traceable, so instrument
+diagnoses and scientific interpretations can be checked against the underlying experimental record.
 
 ## System architecture
 
@@ -316,6 +344,8 @@ Paper titles below are given in their original language.
 10. [Electrons, Photons, and Force: Quantitative Single-Molecule Measurements from Physics to Biology](https://doi.org/10.1021/nn103298x) (2011). Includes STM measurement principles and typical current scales.
 11. [Electrostatic sample-tip interactions in the scanning tunneling microscope](https://doi.org/10.1103/PhysRevLett.70.2471) (1993). An experimental study of tip-induced band bending.
 12. Wikipedia, [Scanning tunneling microscope](https://en.wikipedia.org/wiki/Scanning_tunneling_microscope). An introductory index of terminology and principles.
+
+13. Han et al. (2026), [VISTA: A Visual Harness for Reasoning in an Interactive World](https://arxiv.org/abs/2610.02200). Persistent visual evidence, active inspection, and long-horizon multimodal reasoning.
 
 ## License, third parties, contributions, and security
 
