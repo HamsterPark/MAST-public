@@ -150,6 +150,8 @@ experimental intelligence. MAST's research agenda is to make this loop sustained
 
 ## MAST, VISTA-SPM, and the experimental reasoning loop
 
+**Representation is part of reasoning.** For our experimental systems, this principle connects the organisation of evidence to the choice of the next physical action. Preserving an image together with its coordinates, measurement conditions, and action history gives the agent a basis for comparing explanations and selecting informative control measurements. MAST supplies the execution context in which those decisions become experiments.
+
 **MAST makes scientific intent executable; VISTA-SPM makes visual evidence persist, remain inspectable, and support quantitative reasoning.** This division connects two essential parts of an autonomous experiment: operating the instrument and understanding what its observations mean over time.
 
 [VISTA](https://arxiv.org/abs/2610.02200) shows how direct images, lossless visual memory, active inspection, and revisable notes can support a multimodal model through extended interaction. The connection to STM is especially strong: a defect in an earlier frame may become a positional reference, and a comparison across several scans may distinguish sample motion from drift or a change in the tip. An experimental record gains scientific value when the agent can return to its spatial detail and measurement conditions as new hypotheses emerge.
