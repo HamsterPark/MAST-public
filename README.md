@@ -169,7 +169,7 @@ For example, after an atom-manipulation action, the execution layer supplies the
 
 The visual modules also have a useful scope outside an instrument session: archived scans can be inspected and measured offline, and the same interfaces can be adapted to other agent hosts. MAST contributes the operational setting and scientific workflows; dsh-spm demonstrates the TypeScript implementation; STM-Bench provides the experimental testbed.
 
-**Version and availability.** This repository remains the MAST 6.5.0 public source snapshot described below. VISTA-SPM is the separate reference for the visual design used in ongoing MAST development and ported to dsh-spm; its repository is currently private while publication is prepared. Its own simulator results and integration records provide the validation context for that visual layer.
+**Version and availability.** This repository remains the MAST 6.5.0 public source snapshot described below. [VISTA-SPM](https://github.com/HamsterPark/VISTA-SPM) is the public reference repository for the visual design used in ongoing MAST development and ported to dsh-spm. Its own simulator results and integration records provide the validation context for that visual layer.
 
 ## MAST's results and validation
 
